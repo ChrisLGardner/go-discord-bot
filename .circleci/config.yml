@@ -51,7 +51,7 @@ jobs:
       - buildevents/with_job_span:
           steps:
             - checkout
-            - run: $ACR_PASSWORD | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
+            - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
             - go-build:
             - run: mkdir -v artifacts; cp -v $GOPATH/bin/go-discord-bot artifacts/
 
