@@ -4,4 +4,4 @@ WORKDIR /root/
 
 COPY ./artifacts/ /root/
 
-CMD ["./main"]
+CMD ["./go-discord-bot"]
