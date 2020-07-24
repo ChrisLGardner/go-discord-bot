@@ -68,20 +68,20 @@ jobs:
     machine: true
     steps:
       - buildevents/with_job_span:
-        steps:
-          - checkout
+          steps:
+            - checkout
 
-          - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
+            - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
 
-          # build the docker container
-          - run: |
-              buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
-              docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
-          
-          ## push the docker container to ACR
-          - run: |
-              buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
-              docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
+            # build the docker container
+            - run: |
+                buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
+                docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
+            
+            ## push the docker container to ACR
+            - run: |
+                buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
+                docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
 
 workflows:
   build:
