@@ -103,8 +103,11 @@ workflows:
       #      tags:
       #        only: /.*/
       - build:
-      #    requires:
-      #      - test
+          requires:
+            - setup
           filters:
             tags:
               only: /.*/
+      - publish:
+          requires:
+            - build
