@@ -77,12 +77,11 @@ jobs:
     steps:
       - buildevents/with_job_span:
           steps:
+            - checkout
             - attach_workspace:
                 # Must be absolute path or relative path from working_directory
                 at: artifacts
 
-            - run: ls -l
-            - run: ls artifacts/ -l
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
 
             # build the docker container
