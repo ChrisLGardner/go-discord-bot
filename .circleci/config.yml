@@ -68,7 +68,7 @@ jobs:
     machine: true
     steps:
       - buildevents/with_job_span:
-        -steps:
+        steps:
           - checkout
 
           - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
