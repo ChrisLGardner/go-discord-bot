@@ -85,15 +85,15 @@ jobs:
             - run: ls artifacts/ -l
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
 
-            ## build the docker container
-            #- run: |
-            #    buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
-            #    docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH
-            #
-            ### push the docker container to ACR
-            #- run: |
-            #    buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
-            #    docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH
+            # build the docker container
+            - run: |
+                buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
+                docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH
+            
+            ## push the docker container to ACR
+            - run: |
+                buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
+                docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH
 
 workflows:
   build:

@@ -2,6 +2,6 @@ FROM  alpine:latest
 
 WORKDIR /root/
 
-COPY ./main /root/
+COPY ./artifacts/ /root/
 
 CMD ["./main"]
