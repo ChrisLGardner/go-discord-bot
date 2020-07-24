@@ -8,8 +8,7 @@ orbs:
 executors:
   linuxgo:
     working_directory: /go/src/github.com/chrislgardner/go-discord-bot
-    machine:
-      - image: circleci/classic:latest
+    machine: true
 
 commands:
   go-build:
