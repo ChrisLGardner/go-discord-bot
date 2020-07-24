@@ -7,7 +7,8 @@ orbs:
 
 executors:
   linuxgo:
-    machine: true
+    docker:
+      - image: golang:1
 
 commands:
   go-build:
@@ -51,6 +52,7 @@ jobs:
       - buildevents/with_job_span:
           steps:
             - checkout
+            - setup_remote_docker
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
             - run: go version
             - run: buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_mod_downlaod -- go mod download
