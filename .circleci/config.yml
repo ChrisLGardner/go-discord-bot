@@ -84,15 +84,15 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - test:
-          requires:
-            - setup
-          filters:
-            tags:
-              only: /.*/
+      #- test:
+      #    requires:
+      #      - setup
+      #    filters:
+      #      tags:
+      #        only: /.*/
       - build:
-          requires:
-            - test
+      #    requires:
+      #      - test
           filters:
             tags:
               only: /.*/
