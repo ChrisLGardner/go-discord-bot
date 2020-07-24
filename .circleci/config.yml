@@ -63,6 +63,15 @@ jobs:
             - buildevents/add_context:
                 field_name: artifacts_size_bytes
                 field_value: $size
+            
+            # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job. 
+            - persist_to_workspace:
+              # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
+              # taken to be the root directory of the workspace.
+              root: artifacts
+              # Must be relative path from root
+              paths:
+                - go-discord-bot
 
   publish:
     machine: true
@@ -70,7 +79,7 @@ jobs:
       - buildevents/with_job_span:
           steps:
             - run: ls -l
-            - run: ls artifacts/ l
+            - run: ls artifacts/ -l
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
 
             ## build the docker container
@@ -111,3 +120,8 @@ workflows:
       - publish:
           requires:
             - build
+            filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
