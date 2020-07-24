@@ -44,7 +44,7 @@ jobs:
             ## buildevent/berun is a circleci friendly way to create a buildevents command span
             - buildevents/berun:
                 bename: go_test
-                becommand: go test -v ./...
+                becommand: go test
   build:
     executor: linuxgo
     steps:
@@ -52,6 +52,9 @@ jobs:
           steps:
             - checkout
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
+            - buildevents/berun:
+              bename: go_get
+              becommand: go get ./...
             - go-build:
             - run: mkdir -v artifacts; cp -v $GOPATH/bin/go-discord-bot artifacts/
 
