@@ -52,11 +52,11 @@ jobs:
       - buildevents/with_job_span:
           steps:
             - checkout
-            - setup_remote_docker
-            #- run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
+
             - run: go version
             - run: buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_mod_downlaod -- go mod download
             - go-build:
+              
             - run: mkdir -v artifacts; cp -v $GOPATH/bin/go-discord-bot artifacts/
 
             - run: echo "size=$(du -sb artifacts | cut -f 1)" >> $BASH_ENV
@@ -64,15 +64,23 @@ jobs:
                 field_name: artifacts_size_bytes
                 field_value: $size
 
-            ## build the docker container
-            #- run: |
-            #    buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
-            #    docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
-            #
-            ### push the docker container to ACR
-            #- run: |
-            #    buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
-            #    docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
+  publish:
+    machine: true
+    steps:
+      - buildevents/with_job_span:
+        - checkout
+
+        - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
+
+        # build the docker container
+        - run: |
+            buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
+            docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
+        
+        ## push the docker container to ACR
+        - run: |
+            buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
+            docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
 
 workflows:
   build:
