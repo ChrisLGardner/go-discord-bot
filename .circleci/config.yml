@@ -87,13 +87,15 @@ jobs:
             # build the docker container
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
-                docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH -t halbarad.azurecr.io/go/discord-bot:SHORT_SHA 
+                docker build . -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH -t halbarad.azurecr.io/go/discord-bot:SHORT_SHA \
+                -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
             
             ## push the docker container to ACR
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
-                docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH \
-                docker push halbarad.azurecr.io/go/discord-bot:SHORT_SHA
+                docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_BRANCH && \
+                docker push halbarad.azurecr.io/go/discord-bot:SHORT_SHA && \
+                docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
 
 workflows:
   build:
@@ -123,8 +125,8 @@ workflows:
       - publish:
           requires:
             - build
-          #filters:
-          #  tags:
-          #    only: /^v.*/
-          #  branches:
-          #    ignore: /.*/
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
