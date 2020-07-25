@@ -97,8 +97,8 @@ jobs:
                 docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
             
             - buildevents/add_context:
-              field_name: build_tag
-              field_value: $CIRCLE_TAG
+                field_name: build_tag
+                field_value: $CIRCLE_TAG
 
 workflows:
   build:
