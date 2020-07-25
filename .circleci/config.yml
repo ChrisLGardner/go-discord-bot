@@ -81,7 +81,7 @@ jobs:
             - attach_workspace:
                 # Must be absolute path or relative path from working_directory
                 at: artifacts
-
+            - run: printenv
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
             - run: echo "export SHORT_SHA=$(echo $CIRCLE_SHA1 | head -c 8)" >> $BASH_ENV
             # build the docker container
