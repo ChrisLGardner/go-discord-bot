@@ -53,13 +53,14 @@ jobs:
           steps:
             - checkout
 
-            - run: go version
             - run: buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_mod_downlaod -- go mod download
+            
             - go-build:
 
             - run: mkdir -v artifacts; cp -v $GOPATH/bin/go-discord-bot artifacts/
 
             - run: echo "size=$(du -sb artifacts | cut -f 1)" >> $BASH_ENV
+            
             - buildevents/add_context:
                 field_name: artifacts_size_bytes
                 field_value: $size
@@ -83,7 +84,9 @@ jobs:
                 at: artifacts
 
             - run: echo "$ACR_PASSWORD" | docker login halbarad.azurecr.io -u $ACR_USER --password-stdin
+            
             - run: echo "export SHORT_SHA=$(echo $CIRCLE_SHA1 | head -c 8)" >> $BASH_ENV
+            
             # build the docker container
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
