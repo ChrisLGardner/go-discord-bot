@@ -21,7 +21,7 @@ commands:
           GOARCH=amd64 \
           CGO_ENABLED=0 \
           buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_build -- \
-          go build -i -ldflags "-X main.Version=${CIRCLE_TAG} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
+          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.${CIRCLE_BUILD_NUM} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
           -o $GOPATH/bin/go-discord-bot \
           ./...
 
@@ -64,6 +64,10 @@ jobs:
             - buildevents/add_context:
                 field_name: artifacts_size_bytes
                 field_value: $size
+
+            - buildevents/add_context:
+                field_name: build_version
+                field_value: $MAJOR.$MINOR.$CIRCLE_BUILD_NUM
             
             - persist_to_workspace:
                 # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
@@ -91,17 +95,17 @@ jobs:
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
                 docker build . -t halbarad.azurecr.io/go/discord-bot:$SHORT_SHA \
-                -t halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
+                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$CIRCLE_BUILD_NUM
             
             ## push the docker container to ACR
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
                 docker push halbarad.azurecr.io/go/discord-bot:$SHORT_SHA && \
-                docker push halbarad.azurecr.io/go/discord-bot:$CIRCLE_TAG
+                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$CIRCLE_BUILD_NUM
             
             - buildevents/add_context:
-                field_name: build_tag
-                field_value: $CIRCLE_TAG
+                field_name: container_version
+                field_value: $MAJOR.$MINOR.$CIRCLE_BUILD_NUM
 
 workflows:
   build:
@@ -132,7 +136,5 @@ workflows:
           requires:
             - build
           filters:
-            tags:
-              only: /^v.*/
             branches:
-              ignore: /.*/
+              only: main
