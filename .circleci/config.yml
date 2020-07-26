@@ -64,6 +64,10 @@ jobs:
             - buildevents/add_context:
                 field_name: artifacts_size_bytes
                 field_value: $size
+
+            - buildevents/add_context:
+              field_name: build_version
+              field_value: $MAJOR.$MINOR.$CIRCLE_BUILD_NUM
             
             - persist_to_workspace:
                 # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
