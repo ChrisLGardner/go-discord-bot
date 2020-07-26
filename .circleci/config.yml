@@ -130,9 +130,6 @@ jobs:
                   sed -e "s/#{CONTAINER_VERSION}#/${MAJOR}.${MINOR}.$BUILD_NUMBER/g" >> container.yaml
 
             - run: |
-                  cat container.yaml
-            
-            - run: |
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
                   az container create --resource-group $AZ_RG --name $AZ_ACI \
                   --file container.yaml --registry-password $AZ_REG_PASSWORD \
