@@ -21,7 +21,7 @@ commands:
           GOARCH=amd64 \
           CGO_ENABLED=0 \
           buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_build -- \
-          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.<<pipeline.number>> -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
+          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.${BUILD_NUMBER} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
           -o $GOPATH/bin/go-discord-bot \
           ./...
 
@@ -48,6 +48,8 @@ jobs:
                 becommand: go test -v ./...
   build:
     executor: linuxgo
+    environment:
+      BUILD_NUMBER: <<pipeline.number>>
     steps:
       - buildevents/with_job_span:
           steps:
@@ -67,7 +69,7 @@ jobs:
 
             - buildevents/add_context:
                 field_name: build_version
-                field_value: $MAJOR.$MINOR.$pipeline.number
+                field_value: $MAJOR.$MINOR.$BUILD_NUMBER
             
             - persist_to_workspace:
                 # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
@@ -79,6 +81,8 @@ jobs:
 
   publish:
     machine: true
+    environment:
+      BUILD_NUMBER: <<pipeline.number>>
     steps:
       - buildevents/with_job_span:
           steps:
@@ -95,21 +99,23 @@ jobs:
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
                 docker build . -t halbarad.azurecr.io/go/discord-bot:$SHORT_SHA \
-                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.<<pipeline.number>>
+                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$BUILD_NUMBER
             
             ## push the docker container to ACR
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
                 docker push halbarad.azurecr.io/go/discord-bot:$SHORT_SHA && \
-                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.<<pipeline.number>>
+                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$BUILD_NUMBER
             
             - buildevents/add_context:
                 field_name: container_version
-                field_value: $MAJOR.$MINOR.<<pipeline.number>>
+                field_value: $MAJOR.$MINOR.$BUILD_NUMBER
 
   deploy:
     docker:
       - image: mcr.microsoft.com/azure-cli:2.9.1
+    environment:
+      BUILD_NUMBER: <<pipeline.number>>
     steps:
       - buildevents/with_job_span:
           steps:
@@ -121,7 +127,7 @@ jobs:
             
             - run: |
                   cat container.yaml | sed -e "s/#{DISGORD_TOKEN}#/${DISGORD_TOKEN}/g" | \
-                  sed -e "s/#{CONTAINER_VERSION}#/${MAJOR}.${MINOR}.<<pipeline.number>>/g" >> container.yaml
+                  sed -e "s/#{CONTAINER_VERSION}#/${MAJOR}.${MINOR}.$BUILD_NUMBER/g" >> container.yaml
 
             - run: |
                   cat container.yaml
