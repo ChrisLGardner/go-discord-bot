@@ -21,7 +21,7 @@ commands:
           GOARCH=amd64 \
           CGO_ENABLED=0 \
           buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_build -- \
-          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.${pipeline.number} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
+          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.<<pipeline.number>> -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
           -o $GOPATH/bin/go-discord-bot \
           ./...
 
@@ -95,17 +95,17 @@ jobs:
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
                 docker build . -t halbarad.azurecr.io/go/discord-bot:$SHORT_SHA \
-                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$pipeline.number
+                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.<<pipeline.number>>
             
             ## push the docker container to ACR
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
                 docker push halbarad.azurecr.io/go/discord-bot:$SHORT_SHA && \
-                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$pipeline.number
+                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.<<pipeline.number>>
             
             - buildevents/add_context:
                 field_name: container_version
-                field_value: $MAJOR.$MINOR.$pipeline.number
+                field_value: $MAJOR.$MINOR.<<pipeline.number>>
 
   deploy:
     docker:
@@ -121,7 +121,7 @@ jobs:
             
             - run: |
                   cat container.yaml | sed -e "s/#{DISGORD_TOKEN}#/${DISGORD_TOKEN}/g" | \
-                  sed -e "s/#{CONTAINER_VERSION}#/${MAJOR}.${MINOR}.${pipeline.number}/g" >> container.yaml
+                  sed -e "s/#{CONTAINER_VERSION}#/${MAJOR}.${MINOR}.<<pipeline.number>>/g" >> container.yaml
 
             - run: |
                   cat container.yaml
