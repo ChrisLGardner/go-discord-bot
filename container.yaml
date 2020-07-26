@@ -1,0 +1,35 @@
+additional_properties: {}
+apiVersion: '2018-10-01'
+identity: null
+location: westeurope
+name: discord-bot
+properties:
+  containers:
+  - name: discord-bot
+    properties:
+      environmentVariables:
+      - name: DISGORD_TOKEN
+        value: #{DISGORD_TOKEN}#
+      image: halbarad.azurecr.io/go/discord-bot:#{CONTAINER_VERSION}#
+      ports:
+      - port: 80
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGB: 1.5
+  imageRegistryCredentials:
+  - server: halbarad.azurecr.io
+    username: halbarad
+  ipAddress:
+    ip: 10.0.0.4
+    ports:
+    - port: 80
+      protocol: TCP
+    type: Private
+  networkProfile:
+    id: /subscriptions/60da6908-2ae4-4169-937e-0f065cf989ff/resourceGroups/docker/providers/Microsoft.Network/networkProfiles/discord-bot-networkProfile
+  osType: Linux
+  restartPolicy: OnFailure
+tags: {}
+type: Microsoft.ContainerInstance/containerGroups
