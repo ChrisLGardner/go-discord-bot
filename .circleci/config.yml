@@ -122,6 +122,9 @@ jobs:
             - run: |
                   cat container.yaml | sed -e "s/#{DISGORD_TOKEN}#/${DISGORD_TOKEN}/g" | \
                   sed -e "s/#{CONTAINTER_VERSION}#/${MAJOR}.${MINOR}.${CIRCLE_BUILD_NUM}/g" >> container.yaml
+
+            - run: |
+                  cat container.yaml
             
             - run: |
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
