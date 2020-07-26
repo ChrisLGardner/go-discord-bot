@@ -115,14 +115,17 @@ jobs:
           steps:
             - checkout
 
-            - run: buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_login --\
+            - run: |
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_login -- \
                   az login --service-principal -u $AZ_SP_UUID -p $AZ_SP_PASS --tenant $AZ_SP_TENANT
             
-            - run: buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID update_yaml -- \
+            - run: |
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID update_yaml -- \
                   cat container.yaml | sed -e "s/#{DISGORD_TOKEN}#/$DISGORD_TOKEN/g" | \
                   sed -e "s/#{CONTAINTER_VERSION}#/$MAJOR.$MINOR.$CIRCLE_BUILD_NUM/g" >> container.yaml
             
-            - run: buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
+            - run: |
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
                   az container create --resource-group $AZ_RG --name $AZ_ACI \
                   --file container.yaml
 workflows:
