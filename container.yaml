@@ -18,9 +18,6 @@ properties:
         requests:
           cpu: 1.0
           memoryInGB: 1.5
-  imageRegistryCredentials:
-  - server: halbarad.azurecr.io
-    username: halbarad
   ipAddress:
     ip: 10.0.0.4
     ports:
