@@ -109,7 +109,7 @@ jobs:
 
   deploy:
     docker:
-      image: mcr.microsoft.com/azure-cli:2.9.1
+      - image: mcr.microsoft.com/azure-cli:2.9.1
     steps:
       - buildevents/with_job_span:
           steps:
