@@ -1,0 +1,87 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerName": {
+            "defaultValue": "discord-bot",
+            "type": "string"
+        },
+        "containerVersion": {
+            "defaultValue": "main",
+            "type": "string"
+        },
+        "Token": {
+            "type": "secureString"
+        },
+        "ImageRegistry": {
+            "defaultValue": "halbarad.azurecr.io",
+            "type": "string"
+        },
+        "ImageRegistryUsername": {
+            "defaultValue": "halbarad",
+            "type": "string"
+        },
+        "ImageRegistryPassword": {
+            "type": "secureString"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-10-01",
+            "name": "[parameters('containerName')]",
+            "location": "westeurope",
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[parameters('containerName')]",
+                        "properties": {
+                            "image": "[concat('halbarad.azurecr.io/go/', parameters('containerName'), ':', parameters('containerVersion'))]",
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": 80
+                                }
+                            ],
+                            "environmentVariables": [
+                                {
+                                    "name": "DISGORD_TOKEN",
+                                    "value": "[parameters('Token')]"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1.5,
+                                    "cpu": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "imageRegistryCredentials": [
+                    {
+                        "server": "[parameters('ImageRegistry')]",
+                        "username": "[parameters('ImageRegistryUsername')]",
+                        "password": "[parameters('ImageRegistryPassword')]"
+                    }
+                ],
+                "restartPolicy": "OnFailure",
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": 80
+                        }
+                    ],
+                    "ip": "10.0.0.4",
+                    "type": "Private"
+                },
+                "osType": "Linux",
+                "networkProfile": {
+                    "id": "[resourceId('Microsoft.Network/networkProfiles','discord-bot-networkProfile')]"
+                }
+            }
+        }
+    ]
+}

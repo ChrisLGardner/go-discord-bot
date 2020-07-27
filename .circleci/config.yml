@@ -126,14 +126,11 @@ jobs:
                   az login --service-principal -u $AZ_SP_UUID -p $AZ_SP_PASS --tenant $AZ_SP_TENANT
             
             - run: |
-                  cat container.yaml | sed -e "s/#{DISGORD_TOKEN}#/${DISGORD_TOKEN}/g" | \
-                  sed -e "s/#{CONTAINER_VERSION}#/${MAJOR}.${MINOR}.$BUILD_NUMBER/g" >> container.yaml
-
-            - run: |
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
-                  az container create --resource-group $AZ_RG --name $AZ_ACI \
-                  --file container.yaml --registry-password $AZ_REG_PASSWORD \
-                  --registry-login-server $AZ_REG_SERVER --registry-username $AZ_REG_USER
+                  az deployment group create --resource-group $AZ_RG --template-file deploy.json \
+                  --name $MAJOR.$MINOR.$BUILD_NUMBER \
+                  --parameters containerName=$AZ_ACI containerVersion=$MAJOR.$MINOR.$BUILD_NUMBER token=$DISGORD_TOKEN ImageRegistryPassword=$AZ_REG_PASSWORD
+                  
 workflows:
   build:
     jobs:
