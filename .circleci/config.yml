@@ -159,13 +159,13 @@ workflows:
       - publish:
           requires:
             - build
-          #filters:
-          #  branches:
-          #    only: main
+          filters:
+            branches:
+              only: main
 
       - deploy:
           requires:
             - publish
-          #filters:
-          #  branches:
-          #    only: main
+          filters:
+            branches:
+              only: main
