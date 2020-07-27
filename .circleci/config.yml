@@ -129,7 +129,7 @@ jobs:
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
                   az deployment group create --resource-group $AZ_RG --template-file deploy.json \
                   --name $MAJOR.$MINOR.$BUILD_NUMBER \
-                  --parameters containerName=$AZ_ACI containerVersion=$MAJOR.$MINOR.$BUILD_NUMBER token=$DISGORD_TOKEN ImageRegistryPassword=$AZ_REG_PASSWORD
+                  --parameters containerName=$AZ_ACI containerVersion=$MAJOR.$MINOR.$BUILD_NUMBER Token=$DISGORD_TOKEN ImageRegistryPassword=$AZ_REG_PASSWORD
                   
 workflows:
   build:
