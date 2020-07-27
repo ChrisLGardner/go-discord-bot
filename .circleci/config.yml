@@ -21,7 +21,7 @@ commands:
           GOARCH=amd64 \
           CGO_ENABLED=0 \
           buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_build -- \
-          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.${CIRCLE_BUILD_NUM} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
+          go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.${BUILD_NUMBER} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
           -o $GOPATH/bin/go-discord-bot \
           ./...
 
@@ -48,6 +48,8 @@ jobs:
                 becommand: go test -v ./...
   build:
     executor: linuxgo
+    environment:
+      BUILD_NUMBER: <<pipeline.number>>
     steps:
       - buildevents/with_job_span:
           steps:
@@ -67,7 +69,7 @@ jobs:
 
             - buildevents/add_context:
                 field_name: build_version
-                field_value: $MAJOR.$MINOR.$CIRCLE_BUILD_NUM
+                field_value: $MAJOR.$MINOR.$BUILD_NUMBER
             
             - persist_to_workspace:
                 # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
@@ -79,6 +81,8 @@ jobs:
 
   publish:
     machine: true
+    environment:
+      BUILD_NUMBER: <<pipeline.number>>
     steps:
       - buildevents/with_job_span:
           steps:
@@ -95,18 +99,38 @@ jobs:
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_build -- \
                 docker build . -t halbarad.azurecr.io/go/discord-bot:$SHORT_SHA \
-                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$CIRCLE_BUILD_NUM
+                -t halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$BUILD_NUMBER
             
             ## push the docker container to ACR
             - run: |
                 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID docker_push -- \
                 docker push halbarad.azurecr.io/go/discord-bot:$SHORT_SHA && \
-                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$CIRCLE_BUILD_NUM
+                docker push halbarad.azurecr.io/go/discord-bot:$MAJOR.$MINOR.$BUILD_NUMBER
             
             - buildevents/add_context:
                 field_name: container_version
-                field_value: $MAJOR.$MINOR.$CIRCLE_BUILD_NUM
+                field_value: $MAJOR.$MINOR.$BUILD_NUMBER
 
+  deploy:
+    docker:
+      - image: mcr.microsoft.com/azure-cli:2.9.1
+    environment:
+      BUILD_NUMBER: <<pipeline.number>>
+    steps:
+      - buildevents/with_job_span:
+          steps:
+            - checkout
+
+            - run: |
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_login -- \
+                  az login --service-principal -u $AZ_SP_UUID -p $AZ_SP_PASS --tenant $AZ_SP_TENANT
+            
+            - run: |
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
+                  az deployment group create --resource-group $AZ_RG --template-file deploy.json \
+                  --name $MAJOR.$MINOR.$BUILD_NUMBER \
+                  --parameters containerName=$AZ_ACI containerVersion=$MAJOR.$MINOR.$BUILD_NUMBER Token=$DISGORD_TOKEN ImageRegistryPassword=$AZ_REG_PASSWORD
+                  
 workflows:
   build:
     jobs:
@@ -135,6 +159,13 @@ workflows:
       - publish:
           requires:
             - build
+          filters:
+            branches:
+              only: main
+
+      - deploy:
+          requires:
+            - publish
           filters:
             branches:
               only: main
