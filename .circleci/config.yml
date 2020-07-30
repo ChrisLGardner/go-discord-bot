@@ -139,7 +139,7 @@ jobs:
                   DATE=$(date +%s)
                   curl https://api.honeycomb.io/1/markers/$HONEYCOMB_DATASET -X POST  \
                   -H "X-Honeycomb-Team: $MARKER_API_KEY"  \
-                  -d """{"message":"deploy $BUILD_NUMBER", "type":"deploy", "start_time":$DATE}""""
+                  -d '{"message":"deploy '$MAJOR'.'$MINOR'.'$BUILD_NUMBER'", "type":"deploy", "start_time":'$DATE'}'
                   
 workflows:
   build:
