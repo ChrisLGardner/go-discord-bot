@@ -23,6 +23,12 @@
         },
         "ImageRegistryPassword": {
             "type": "secureString"
+        },
+        "HoneycombDataset": {
+            "type": "string"
+        },
+        "HoneycombApiKey": {
+            "type": "securestring"
         }
     },
     "variables": {},
@@ -46,8 +52,16 @@
                             ],
                             "environmentVariables": [
                                 {
-                                    "name": "DISGORD_TOKEN",
+                                    "name": "DISCORD_TOKEN",
                                     "value": "[parameters('Token')]"
+                                },
+                                {
+                                    "name": "HONEYCOMB_KEY",
+                                    "value": "[parameters('HoneycombApiKey')]"
+                                },
+                                {
+                                    "name": "HONEYCOMB_DATASET",
+                                    "value": "[parameters('HoneycombDataset')]"
                                 }
                             ],
                             "resources": {
