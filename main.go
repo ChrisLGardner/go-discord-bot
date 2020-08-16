@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/honeycombio/beeline-go"
@@ -66,7 +67,12 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if m.Content == "ping" {
 		s.ChannelMessageSend(m.ChannelID, "pong")
+	} else if m.Content == "test" {
+		time.Sleep(3 * time.Second)
+		s.ChannelMessageSend(m.ChannelID, "test success")
 	}
+
+	beeline.Flush(ctx)
 
 }
 
@@ -101,7 +107,6 @@ func getMessageProps(me *MessageEvent) map[string]interface{} {
 	messageProps["message.ID"] = me.Message.ID
 	messageProps["message.ChannelID"] = me.Message.ChannelID
 	messageProps["message.GuildID"] = me.Message.GuildID
-	messageProps["message.ActivityType"] = me.Message.Activity.Type
 	messageProps["message.AuthorID"] = me.Message.Author.ID
 	messageProps["message.AuthorUsername"] = me.Message.Author.Username
 	messageProps["message.MessageType"] = me.Message.Type
@@ -130,4 +135,6 @@ func getSessionProps(s *discordgo.Session) map[string]interface{} {
 	sessionProps := make(map[string]interface{})
 
 	sessionProps["session.ShardID"] = s.ShardID
+
+	return sessionProps
 }
