@@ -55,7 +55,7 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	var ctx context.Context
+	ctx := context.Background()
 	var span *trace.Span
 	me := MessageEvent{m.Message, ctx}
 
