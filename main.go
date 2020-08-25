@@ -56,8 +56,6 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	m.Content = strings.Replace(m.Content, "!", "", 1)
-
 	ctx := context.Background()
 	var span *trace.Span
 	me := MessageEvent{m.Message, ctx}
@@ -68,11 +66,19 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField(k, v)
 	}
 
-	if m.Content == "ping" {
+	m.Content = strings.Replace(m.Content, "!", "", 1)
+
+	if strings.HasPrefix(m.Content, "ping") {
+		span.AddField("command", "ping")
 		s.ChannelMessageSend(m.ChannelID, "pong")
-	} else if m.Content == "test" {
+	} else if strings.HasPrefix(m.Content, "test") {
+		span.AddField("command", "test")
 		time.Sleep(3 * time.Second)
 		s.ChannelMessageSend(m.ChannelID, "test success")
+	} else if strings.HasPrefix(m.Content, "split") {
+		span.AddField("command", "split")
+		str := strings.Split(m.Content, " ")
+		s.ChannelMessageSend(m.ChannelID, strings.Join(str[1:], "-"))
 	}
 
 	beeline.Flush(ctx)
