@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -51,7 +52,7 @@ func main() {
 }
 
 func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
+	if m.Author.ID == s.State.User.ID || !strings.HasPrefix(m.Content, "!") {
 		return
 	}
 
@@ -65,11 +66,19 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField(k, v)
 	}
 
-	if m.Content == "ping" {
+	m.Content = strings.Replace(m.Content, "!", "", 1)
+
+	if strings.HasPrefix(m.Content, "ping") {
+		span.AddField("command", "ping")
 		s.ChannelMessageSend(m.ChannelID, "pong")
-	} else if m.Content == "test" {
+	} else if strings.HasPrefix(m.Content, "test") {
+		span.AddField("command", "test")
 		time.Sleep(3 * time.Second)
 		s.ChannelMessageSend(m.ChannelID, "test success")
+	} else if strings.HasPrefix(m.Content, "split") {
+		span.AddField("command", "split")
+		str := strings.Split(m.Content, " ")
+		s.ChannelMessageSend(m.ChannelID, strings.Join(str[1:], "-"))
 	}
 
 	beeline.Flush(ctx)
