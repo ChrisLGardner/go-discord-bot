@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -51,9 +52,11 @@ func main() {
 }
 
 func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
+	if m.Author.ID == s.State.User.ID || !strings.HasPrefix(m.Content, "!") {
 		return
 	}
+
+	m.Content = strings.Replace(m.Content, "!", "", 1)
 
 	ctx := context.Background()
 	var span *trace.Span
