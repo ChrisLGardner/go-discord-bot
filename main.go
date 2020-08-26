@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -17,6 +19,11 @@ import (
 type MessageEvent struct {
 	Message *discordgo.Message
 	Context context.Context
+}
+
+type catFact struct {
+	Fact   string
+	length int
 }
 
 func main() {
@@ -79,6 +86,29 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "split")
 		str := strings.Split(m.Content, " ")
 		s.ChannelMessageSend(m.ChannelID, strings.Join(str[1:], "-"))
+	} else if strings.HasPrefix(m.Content, "catfact") {
+		span.AddField("command", "catfact")
+
+		beeline.StartSpan(ctx, "catfact")
+
+		resp, err := http.Get("https://catfact.ninja/fact")
+		if err != nil {
+			beeline.AddField(ctx, "error", err)
+			span.AddField("error", err)
+		}
+
+		defer resp.Body.Close()
+
+		var fact catFact
+
+		err = json.NewDecoder(resp.Body).Decode(&fact)
+		if err != nil {
+			beeline.AddField(ctx, "error", err)
+			span.AddField("error", err)
+		}
+
+		s.ChannelMessageSend(m.ChannelID, fact.Fact)
+
 	}
 
 	beeline.Flush(ctx)
@@ -92,6 +122,7 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 func StartSpanOrTraceFromMessage(me *MessageEvent) (context.Context, *trace.Span) {
 	ctx := me.Context
 	span := trace.GetSpanFromContext(ctx)
+
 	if span == nil {
 		// there is no trace yet. We should make one! and use the root span.
 		var tr *trace.Trace
