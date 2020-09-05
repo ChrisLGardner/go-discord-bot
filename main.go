@@ -62,7 +62,7 @@ func messageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var span *trace.Span
 	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
 
-	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me)
+	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
 
 	m.Content = strings.Replace(m.Content, "!", "", 1)
 

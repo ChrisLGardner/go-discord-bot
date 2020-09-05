@@ -17,7 +17,7 @@ type MessageEvent struct {
 // there is an existing span in the Context, this function will create the new span as a
 // child span and return it. If not, it will create a new trace object and return the root
 // span.
-func StartSpanOrTraceFromMessage(me *MessageEvent) (context.Context, *trace.Span) {
+func StartSpanOrTraceFromMessage(me *MessageEvent, s *discordgo.Session) (context.Context, *trace.Span) {
 	ctx := me.Context
 	span := trace.GetSpanFromContext(ctx)
 
