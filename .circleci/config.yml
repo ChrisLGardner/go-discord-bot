@@ -22,7 +22,7 @@ commands:
           CGO_ENABLED=0 \
           buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID go_build -- \
           go build -i -ldflags "-X main.Version=${MAJOR}.${MINOR}.${BUILD_NUMBER} -X main.Branch=${CIRCLE_BRANCH} -X main.Hash=${CIRCLE_SHA1}" \
-          -o $GOPATH/bin/go-discord-bot \
+          -o $GOPATH/bin \
           ./...
 
 jobs:
