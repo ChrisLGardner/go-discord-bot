@@ -156,7 +156,24 @@ func GetMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Mess
 		return nil, err
 	}
 
-	return member.Roles, nil
+	guildRoles, err := s.GuildRoles(m.GuildID)
+
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return nil, err
+	}
+
+	var roles []string
+
+	for _, role := range member.Roles {
+		for _, guildRole := range guildRoles {
+			if guildRole.ID == role {
+				roles = append(roles, guildRole.Name)
+			}
+		}
+	}
+
+	return roles, nil
 }
 
 func sendMinecraftCommand(ctx context.Context, comm string) (string, error) {
