@@ -85,12 +85,25 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		enabled := false
 
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-commands") {
-			span.AddField("flags.minecraft", true)
-			enabled = true
-		}
+		if strings.Contains(m.Content, " whitelist ") {
+			if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-commands") {
+				span.AddField("flags.minecraft", true)
+				enabled = true
+			}
 
-		if enabled {
+			if enabled {
+				resp, err := sendMinecraftCommand(ctx, m.Content)
+				if err != nil {
+					span.AddField("error", err)
+					sendResponse(ctx, s, m.ChannelID, err.Error())
+				}
+
+				sendResponse(ctx, s, m.ChannelID, resp)
+			}
+		} else if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-admin") {
+			span.AddField("flags.minecraft", true)
+			span.AddField("flags.minecraft-admin", true)
+
 			resp, err := sendMinecraftCommand(ctx, m.Content)
 			if err != nil {
 				span.AddField("error", err)
@@ -98,6 +111,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			sendResponse(ctx, s, m.ChannelID, resp)
+
 		} else {
 			span.AddField("flags.minecraft", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
