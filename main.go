@@ -46,7 +46,7 @@ func main() {
 
 func getFeatureFlagState(ctx context.Context, id string, roles []string, flag string) bool {
 
-	ctx, span := beeline.StartSpan(ctx, "get_feature_flag")
+	ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
 	defer span.Send()
 
 	optimizelyFactory := &client.OptimizelyFactory{
@@ -66,6 +66,12 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 	enabled := false
 
 	for _, role := range roles {
+		ctx, span := beeline.StartSpan(ctx, "get_feature_flag")
+		defer span.Send()
+
+		beeline.AddField(ctx, "feature_flag_name", flag)
+		beeline.AddField(ctx, "feature_flag_role", role)
+
 		attributes := map[string]interface{}{
 			"role": role,
 		}
@@ -76,6 +82,7 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 		}
 
 		enabled, _ := optlyClient.IsFeatureEnabled(flag, user)
+		beeline.AddField(ctx, "feature_flag_enabled", enabled)
 
 		if enabled {
 			return enabled

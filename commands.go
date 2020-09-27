@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/trace"
+	rcon "github.com/katnegermis/pocketmine-rcon"
 )
 
 type catFact struct {
@@ -78,6 +80,42 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "relationships")
 
 		s.ChannelMessageSend(m.ChannelID, "some interesting otter things")
+	} else if strings.HasPrefix(m.Content, "mc") {
+		span.AddField("command", "minecraft")
+
+		enabled := false
+
+		if strings.Contains(m.Content, " whitelist ") {
+			if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-commands") {
+				span.AddField("flags.minecraft", true)
+				enabled = true
+			}
+
+			if enabled {
+				resp, err := sendMinecraftCommand(ctx, m.Content)
+				if err != nil {
+					span.AddField("error", err)
+					sendResponse(ctx, s, m.ChannelID, err.Error())
+				}
+
+				sendResponse(ctx, s, m.ChannelID, resp)
+			}
+		} else if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-admin") {
+			span.AddField("flags.minecraft", true)
+			span.AddField("flags.minecraft-admin", true)
+
+			resp, err := sendMinecraftCommand(ctx, m.Content)
+			if err != nil {
+				span.AddField("error", err)
+				sendResponse(ctx, s, m.ChannelID, err.Error())
+			}
+
+			sendResponse(ctx, s, m.ChannelID, resp)
+
+		} else {
+			span.AddField("flags.minecraft", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
 	}
 
 	span.Send()
@@ -86,7 +124,8 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m string) {
 
-	beeline.StartSpan(ctx, "send_response")
+	ctx, span := beeline.StartSpan(ctx, "send_response")
+	defer span.Send()
 	beeline.AddField(ctx, "response", m)
 	beeline.AddField(ctx, "chennel", cid)
 
@@ -96,8 +135,9 @@ func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m strin
 
 func getCatFact(ctx context.Context) (catFact, error) {
 
-	beeline.StartSpan(ctx, "getCatFact")
+	ctx, span := beeline.StartSpan(ctx, "getCatFact")
 
+	defer span.Send()
 	resp, err := http.Get("https://catfact.ninja/fact")
 	if err != nil {
 		beeline.AddField(ctx, "error", err)
@@ -130,5 +170,60 @@ func GetMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Mess
 		return nil, err
 	}
 
-	return member.Roles, nil
+	guildRoles, err := s.GuildRoles(m.GuildID)
+
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return nil, err
+	}
+
+	var roles []string
+
+	for _, role := range member.Roles {
+		for _, guildRole := range guildRoles {
+			if guildRole.ID == role {
+				roles = append(roles, guildRole.Name)
+			}
+		}
+	}
+
+	return roles, nil
+}
+
+func sendMinecraftCommand(ctx context.Context, comm string) (string, error) {
+	ctx, span := beeline.StartSpan(ctx, "minecraft_command")
+	defer span.Send()
+
+	conn, err := connectMinecraft(ctx)
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return "", err
+	}
+
+	comm = strings.TrimPrefix(comm, "mc ")
+	r, err := conn.SendCommand(comm)
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return "", err
+	}
+
+	return r, nil
+
+}
+
+func connectMinecraft(ctx context.Context) (*rcon.Connection, error) {
+	ctx, span := beeline.StartSpan(ctx, "connect_minecraft")
+	defer span.Send()
+
+	addr := os.Getenv("MCSERVERADDR")
+	pass := os.Getenv("MCSERVERPASS")
+
+	beeline.AddField(ctx, "mc.server.address", addr)
+	conn, err := rcon.NewConnection(addr, pass)
+
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return nil, err
+	}
+	return conn, nil
 }
