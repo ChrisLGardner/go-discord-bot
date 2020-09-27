@@ -83,13 +83,25 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if strings.HasPrefix(m.ChannelID, "mc") {
 		span.AddField("command", "minecraft")
 
-		resp, err := sendMinecraftCommand(ctx, m.Content)
-		if err != nil {
-			span.AddField("error", err)
-			sendResponse(ctx, s, m.ChannelID, err.Error())
+		enabled := false
+
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "minecraft-command") {
+			span.AddField("flags.minecraft", true)
+			enabled = true
 		}
 
-		sendResponse(ctx, s, m.ChannelID, resp)
+		if enabled {
+			resp, err := sendMinecraftCommand(ctx, m.Content)
+			if err != nil {
+				span.AddField("error", err)
+				sendResponse(ctx, s, m.ChannelID, err.Error())
+			}
+
+			sendResponse(ctx, s, m.ChannelID, resp)
+		} else {
+			span.AddField("flags.minecraft", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
 	}
 
 	span.Send()
