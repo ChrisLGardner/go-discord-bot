@@ -1,4 +1,4 @@
-package commands
+package main
 
 import (
 	"context"
@@ -33,6 +33,13 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	m.Content = strings.Replace(m.Content, "!", "", 1)
 	span.AddField("name", "MessageRespond")
 
+	roles, err := GetMemberRoles(ctx, s, m.Message)
+	if err != nil {
+		span.AddField("member.role.error", err)
+	}
+
+	span.AddField("member.roles", roles)
+
 	if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
@@ -47,13 +54,25 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if strings.HasPrefix(m.Content, "catfact") {
 		span.AddField("command", "catfact")
 
-		fact, err := getCatFact(ctx)
+		enabled := false
 
-		if err != nil {
-			span.AddField("error", err)
-			sendResponse(ctx, s, m.ChannelID, "error getting cat fact")
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "catfact-command") {
+			span.AddField("flags.catfact", true)
+			enabled = true
 		}
-		sendResponse(ctx, s, m.ChannelID, fact.Fact)
+
+		if enabled {
+			fact, err := getCatFact(ctx)
+
+			if err != nil {
+				span.AddField("error", err)
+				sendResponse(ctx, s, m.ChannelID, "error getting cat fact")
+			}
+			sendResponse(ctx, s, m.ChannelID, fact.Fact)
+		} else {
+			span.AddField("flags.catfact", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
 
 	} else if strings.HasPrefix(m.Content, "relationships") {
 		span.AddField("command", "relationships")
@@ -98,4 +117,18 @@ func getCatFact(ctx context.Context) (catFact, error) {
 	beeline.AddField(ctx, "response", fact.Fact)
 
 	return fact, nil
+}
+
+func GetMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Message) ([]string, error) {
+	ctx, span := beeline.StartSpan(ctx, "get_discord_role")
+	defer span.Send()
+
+	member, err := s.GuildMember(m.GuildID, m.Author.ID)
+
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return nil, err
+	}
+
+	return member.Roles, nil
 }
