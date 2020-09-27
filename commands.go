@@ -80,12 +80,12 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "relationships")
 
 		s.ChannelMessageSend(m.ChannelID, "some interesting otter things")
-	} else if strings.HasPrefix(m.ChannelID, "mc") {
+	} else if strings.HasPrefix(m.Content, "mc") {
 		span.AddField("command", "minecraft")
 
 		enabled := false
 
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "minecraft-command") {
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-commands") {
 			span.AddField("flags.minecraft", true)
 			enabled = true
 		}
