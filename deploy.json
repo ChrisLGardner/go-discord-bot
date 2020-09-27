@@ -22,12 +22,21 @@
             "type": "string"
         },
         "ImageRegistryPassword": {
-            "type": "secureString"
+            "type": "securestring"
         },
         "HoneycombDataset": {
             "type": "string"
         },
         "HoneycombApiKey": {
+            "type": "securestring"
+        },
+        "OptimizelyKey": {
+            "type": "securestring"
+        },
+        "MinecraftServerAddress": {
+            "type": "string"
+        },
+        "MinecraftServerPassword": {
             "type": "securestring"
         }
     },
@@ -62,6 +71,18 @@
                                 {
                                     "name": "HONEYCOMB_DATASET",
                                     "value": "[parameters('HoneycombDataset')]"
+                                },
+                                {
+                                    "name": "OPTIMIZELY_KEY",
+                                    "value": "[parameters('OptimizelyKey')]"
+                                },
+                                {
+                                    "name": "MCSERVERADDR",
+                                    "value": "[parameters('MinecraftServerAddress')]"
+                                },
+                                {
+                                    "name": "MCSERVERPASS",
+                                    "value": "[parameters('MinecraftServerPassword')]"
                                 }
                             ],
                             "resources": {
