@@ -156,12 +156,12 @@ workflows:
           filters:
             tags:
               only: /.*/
-      #- test:
-      #    requires:
-      #      - setup
-      #    filters:
-      #      tags:
-      #        only: /.*/
+      - test:
+          requires:
+            - setup
+          filters:
+            tags:
+              only: /.*/
       - build:
           requires:
             - setup
