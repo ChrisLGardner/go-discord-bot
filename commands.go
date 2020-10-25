@@ -116,6 +116,18 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.minecraft", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
+	} else if strings.HasPrefix(m.Content, "mtg") {
+		span.AddField("command", "magic")
+
+		str := strings.Replace(m.Content, "mtg", "", 1)
+
+		resp, err := mtgCommand(ctx, str)
+		if err != nil {
+			span.AddField("error", err)
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+		}
+
+		s.ChannelMessageSend(m.ChannelID, resp)
 	}
 
 	span.Send()
