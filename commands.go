@@ -133,10 +133,10 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		resp, err := mtgCommand(ctx, strings.TrimSpace(str))
 		if err != nil {
 			span.AddField("error", err)
-			s.ChannelMessageSend(m.ChannelID, err.Error())
+			sendResponse(ctx, s, m.ChannelID, err.Error())
 		}
 
-		s.ChannelMessageSend(m.ChannelID, resp)
+		sendResponse(ctx, s, m.ChannelID, resp)
 	}
 
 	span.Send()
