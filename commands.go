@@ -42,7 +42,16 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	span.AddField("member.roles", roles)
 
-	if strings.HasPrefix(m.Content, "ping") {
+	if strings.HasPrefix(m.Content, "help") {
+		span.AddField("command", "help")
+		help := `Commands available:
+		ping - returns pong if bot is running
+		catfact - returns a random cat fact
+		mc - runs various minecraft commands if enabled for the user
+		mtg - returns a scryfall search link based on user criteria, see mtg help for more details.
+		`
+		sendResponse(ctx, s, m.ChannelID, help)
+	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
 	} else if strings.HasPrefix(m.Content, "test") {
