@@ -130,7 +130,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		str := strings.Replace(m.Content, "mtg", "", 1)
 
-		resp, err := mtgCommand(ctx, str)
+		resp, err := mtgCommand(ctx, strings.TrimSpace(str))
 		if err != nil {
 			span.AddField("error", err)
 			s.ChannelMessageSend(m.ChannelID, err.Error())
