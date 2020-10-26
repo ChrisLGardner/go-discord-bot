@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -30,6 +32,12 @@ child of alara legendary land 2
 
 Will return all legendary land with CMC equal to 2
 `
+
+type scryfallResult struct {
+	ColorIdentity []string `json:"color_identity"`
+	Status        int      `json:"status"`
+	Details       string   `json:"details"`
+}
 
 func mtgCommand(ctx context.Context, c string) (string, error) {
 
@@ -115,13 +123,24 @@ func findColourIdentity(ctx context.Context, c string) (string, error) {
 		return "", err
 	}
 
-	var result map[string][]string
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return "", err
+	}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+	var result scryfallResult
+
+	json.Unmarshal(body, &result)
+
+	if result.Status == 404 {
+		beeline.AddField(ctx, "mtg.findColorIdentity.details", result.Details)
+		return "", fmt.Errorf(result.Details)
+	}
 
 	ci := ""
 
-	for _, color := range result["color_identity"] {
+	for _, color := range result.ColorIdentity {
 		ci = ci + color
 	}
 	beeline.AddField(ctx, "mtg.findColourIdentity", ci)
