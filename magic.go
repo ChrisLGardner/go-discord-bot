@@ -13,10 +13,32 @@ import (
 
 var baseURI = "https://scryfall.com/search?as=grid&order=name&q="
 
+var help = `
+Generates a Scryfall search link based on specified criteria.
+You can specify the name of a command (or most of the name) and then:
+* Card types, including super types
+* CMC, including <,=,> or combinations (defaults to = if no symbol specified)
+* Power/Toughness
+
+Example 1:
+Linvala, Keeper of Silence creature 2/2 cmc<5
+
+Will return a search to find all white or colours creatures which are 2/2 and cost less than 5 mana.
+
+Example 2:
+child of alara legendary land 2
+
+Will return all legendary land with CMC equal to 2
+`
+
 func mtgCommand(ctx context.Context, c string) (string, error) {
 
 	ctx, span := beeline.StartSpan(ctx, "mtgCommand")
 	defer span.Send()
+
+	if strings.HasPrefix(c, "help") {
+		return help, nil
+	}
 
 	beeline.AddField(ctx, "mtg.baseuri", baseURI)
 
