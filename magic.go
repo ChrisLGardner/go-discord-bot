@@ -132,9 +132,11 @@ func findColourIdentity(ctx context.Context, c string) (string, error) {
 	var result scryfallResult
 
 	json.Unmarshal(body, &result)
+	beeline.AddField(ctx, "mtg.findColorIdentity.status", result.Status)
+	beeline.AddField(ctx, "mtg.findColorIdentity.details", result.Details)
+	beeline.AddField(ctx, "mtg.findColorIdentity.rawcoloridentity", result.ColorIdentity)
 
 	if result.Status == 404 {
-		beeline.AddField(ctx, "mtg.findColorIdentity.details", result.Details)
 		return "", fmt.Errorf(result.Details)
 	}
 
@@ -143,7 +145,7 @@ func findColourIdentity(ctx context.Context, c string) (string, error) {
 	for _, color := range result.ColorIdentity {
 		ci = ci + color
 	}
-	beeline.AddField(ctx, "mtg.findColourIdentity", ci)
+	beeline.AddField(ctx, "mtg.findColourIdentity.parsed", ci)
 
 	return ci, nil
 }
