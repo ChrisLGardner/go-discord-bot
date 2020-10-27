@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -133,7 +134,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		resp, err := mtgCommand(ctx, strings.TrimSpace(str))
 		if err != nil {
 			span.AddField("error", err)
-			sendResponse(ctx, s, m.ChannelID, err.Error())
+			sendResponse(ctx, s, m.ChannelID, fmt.Sprint(err))
 		}
 
 		sendResponse(ctx, s, m.ChannelID, resp)
