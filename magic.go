@@ -52,26 +52,26 @@ func mtgCommand(ctx context.Context, c string) (string, error) {
 
 	types, superTypes, c, err := getTypes(ctx, c)
 	if err != nil {
-		beeline.AddField(ctx, "error", err)
+		beeline.AddField(ctx, "mtg.error", err)
 		return "", err
 	}
 
 	pt, c, err := getPowerToughtness(ctx, c)
 	if err != nil {
-		beeline.AddField(ctx, "error", err)
+		beeline.AddField(ctx, "mtg.error", err)
 		return "", err
 	}
 
 	cmc, c, err := getCmc(ctx, c)
 	if err != nil {
-		beeline.AddField(ctx, "error", err)
+		beeline.AddField(ctx, "mtg.error", err)
 		return "", err
 	}
 
 	ci, err := findColourIdentity(ctx, c)
 	if err != nil {
-		beeline.AddField(ctx, "error", err)
-		return "", nil
+		beeline.AddField(ctx, "mtg.error", err)
+		return "", err
 	}
 
 	uri := baseURI + "commander%3A" + ci
