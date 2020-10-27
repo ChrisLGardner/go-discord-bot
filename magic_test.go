@@ -76,14 +76,27 @@ func TestParseMtgString(t *testing.T) {
 			"https://scryfall.com/search?as=grid&order=name&q=commander%3AW+cmc%3D5+type%3Acreature",
 			false,
 		},
+		{
+			"omnath land",
+			"Too many cards match ambiguous name “omnath”. Add more words to refine your search.",
+			true,
+		},
 	}
 
 	for _, item := range dataItems {
 
 		ctx := context.Background()
 
-		if res, _ := mtgCommand(ctx, item.input); res != item.result {
-			t.Errorf("mtgCommand with args %v: FAILED, expected %v but got %v", item.input, item.result, res)
+		res, err := mtgCommand(ctx, item.input)
+
+		if item.hasError == true {
+			if err.Error() != item.result {
+				t.Errorf("mtgCommand with args %v: FAILED, expected %v but got %v", item.input, item.result, err)
+			}
+		} else {
+			if res != item.result {
+				t.Errorf("mtgCommand with args %v: FAILED, expected %v but got %v", item.input, item.result, res)
+			}
 		}
 	}
 }
