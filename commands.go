@@ -134,9 +134,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			span.AddField("error", err)
 			sendResponse(ctx, s, m.ChannelID, err.Error())
+		} else {
+			sendResponse(ctx, s, m.ChannelID, resp)
 		}
-
-		sendResponse(ctx, s, m.ChannelID, resp)
 	}
 
 	span.Send()
