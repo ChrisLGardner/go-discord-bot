@@ -56,7 +56,7 @@ func mtgCommand(ctx context.Context, c string) (string, error) {
 		return "", err
 	}
 
-	pt, c, err := getPowerToughtness(ctx, c)
+	pow, tou, c, err := getPowerToughtness(ctx, c)
 	if err != nil {
 		beeline.AddField(ctx, "mtg.error", err)
 		return "", err
@@ -76,8 +76,11 @@ func mtgCommand(ctx context.Context, c string) (string, error) {
 
 	uri := baseURI + "commander%3A" + ci
 
-	if pt != "" {
-		uri = uri + "+" + pt
+	if pow != "" {
+		uri = uri + "+" + pow
+	}
+	if tou != "" {
+		uri = uri + "+" + tou
 	}
 	if cmc != "" {
 		uri = uri + "+cmc" + cmc
@@ -231,7 +234,7 @@ func getCmc(ctx context.Context, c string) (res string, remainingCommand string,
 	return res, remainingCommand, nil
 }
 
-func getPowerToughtness(ctx context.Context, c string) (res string, remainingCommand string, err error) {
+func getPowerToughtness(ctx context.Context, c string) (pow string, tou string, remainingCommand string, err error) {
 
 	ctx, span := beeline.StartSpan(ctx, "mtg.pt")
 	defer span.Send()
@@ -247,7 +250,7 @@ func getPowerToughtness(ctx context.Context, c string) (res string, remainingCom
 	beeline.AddField(ctx, "mtg.pt.matches", matchingStrings)
 
 	if len(matchingStrings) == 0 {
-		return "", c, nil
+		return "", "", c, nil
 	}
 
 	matches = matchingStrings[0]
@@ -258,12 +261,23 @@ func getPowerToughtness(ctx context.Context, c string) (res string, remainingCom
 
 	remainingCommand = strings.TrimSpace(pattern.ReplaceAllString(c, ""))
 
-	res = "pow%3D" + elements["power"] + "+tou%3D" + elements["toughness"]
-	beeline.AddField(ctx, "mtg.pt.result", res)
+	if elements["power"] == "*" {
+		pow = ""
+	} else {
+		pow = "pow%3D" + elements["power"]
+	}
+	if elements["toughness"] == "*" {
+		tou = ""
+	} else {
+		tou = "tou%3D" + elements["toughness"]
+	}
+
+	beeline.AddField(ctx, "mtg.pt.pow", pow)
+	beeline.AddField(ctx, "mtg.pt.tou", tou)
 	beeline.AddField(ctx, "mtg.pt.remaining", remainingCommand)
 	beeline.AddField(ctx, "mtg.pt.power", elements["power"])
 	beeline.AddField(ctx, "mtg.pt.toughness", elements["toughness"])
 
-	return res, remainingCommand, nil
+	return pow, tou, remainingCommand, nil
 
 }
