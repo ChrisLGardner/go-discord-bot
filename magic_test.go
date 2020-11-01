@@ -192,21 +192,24 @@ func TestGetCmc(t *testing.T) {
 func TestGetPowerToughness(t *testing.T) {
 
 	dataItems := []TestDataOutputArray{
-		{"creature 3 1/4", []string{"pow%3D1+tou%3D4", "creature 3"}, false},
-		{"sorcery <1 */2", []string{"pow%3D*+tou%3D2", "sorcery <1"}, false},
-		{"enchantment 3/*", []string{"pow%3D3+tou%3D*", "enchantment"}, false},
+		{"creature 3 1/4", []string{"pow%3D1", "tou%3D4", "creature 3"}, false},
+		{"sorcery <1 */2", []string{"", "tou%3D2", "sorcery <1"}, false},
+		{"enchantment 3/*", []string{"pow%3D3", "", "enchantment"}, false},
 	}
 
 	for _, item := range dataItems {
 
 		ctx := context.Background()
-		pt, remain, _ := getPowerToughtness(ctx, item.input)
+		pow, tou, remain, _ := getPowerToughtness(ctx, item.input)
 
-		if item.result[0] != pt {
-			t.Errorf("getPowerToughness with input %v: FAILED, expected %v but got %v", item.input, item.result[0], pt)
+		if item.result[0] != pow {
+			t.Errorf("getPowerToughness with input %v: FAILED, expected %v but got %v", item.input, item.result[0], pow)
 		}
-		if item.result[1] != remain {
-			t.Errorf("getPowerToughness with input %v: FAILED, expected %v but got %v", item.input, item.result[1], remain)
+		if item.result[1] != tou {
+			t.Errorf("getPowerToughness with input %v: FAILED, expected %v but got %v", item.input, item.result[1], tou)
+		}
+		if item.result[2] != remain {
+			t.Errorf("getPowerToughness with input %v: FAILED, expected %v but got %v", item.input, item.result[2], remain)
 		}
 	}
 }
