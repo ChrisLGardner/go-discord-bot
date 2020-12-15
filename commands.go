@@ -22,6 +22,10 @@ type catFact struct {
 
 //MessageRespond is the handler for which message respond function should be called
 func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.Username == "Adilio" {
+		adilioMessage(s, m)
+		return
+	}
 	if m.Author.ID == s.State.User.ID || !strings.HasPrefix(m.Content, "!") {
 		return
 	}
@@ -247,4 +251,20 @@ func connectMinecraft(ctx context.Context) (*rcon.Connection, error) {
 		return nil, err
 	}
 	return conn, nil
+}
+
+func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	ctx := context.Background()
+	var span *trace.Span
+	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
+
+	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+	span.AddField("command", "AdilioLol")
+
+	if strings.Contains(m.Message.Content, "lol") {
+		sendResponse(ctx, s, m.ChannelID, ":adilol:")
+	}
+
+	span.Send()
+
 }
