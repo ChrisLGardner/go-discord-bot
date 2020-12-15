@@ -254,17 +254,17 @@ func connectMinecraft(ctx context.Context) (*rcon.Connection, error) {
 }
 
 func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
-	ctx := context.Background()
-	var span *trace.Span
-	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
-
-	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
-	span.AddField("command", "AdilioLol")
-
 	if strings.Contains(m.Message.Content, "lol") {
-		sendResponse(ctx, s, m.ChannelID, ":adilol:")
-	}
+		ctx := context.Background()
+		var span *trace.Span
+		me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
 
-	span.Send()
+		ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+		span.AddField("command", "AdilioLol")
+
+		sendResponse(ctx, s, m.ChannelID, ":adilol:")
+
+		span.Send()
+	}
 
 }
