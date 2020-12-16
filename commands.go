@@ -266,7 +266,7 @@ func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	span.AddField("command", "AdilioLol")
 
 	if strings.Contains(strings.ToLower(m.Message.Content), "lol") {
-		sendResponse(ctx, s, m.ChannelID, "<:adilol:769263097772245032>")
+		sendResponse(ctx, s, m.ChannelID, "<:adilolol:769432234880925727>")
 	}
 
 	span.Send()
