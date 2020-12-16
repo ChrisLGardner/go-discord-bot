@@ -69,7 +69,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if strings.HasPrefix(m.Content, "emoji") {
 		span.AddField("command", "emoji-test")
 
-		sendResponse(ctx, s, m.ChannelID, ":emotest:")
+		sendResponse(ctx, s, m.ChannelID, ":emotest:788860836009345024")
 	} else if strings.HasPrefix(m.Content, "catfact") {
 		span.AddField("command", "catfact")
 
