@@ -66,6 +66,10 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "split")
 		str := strings.Split(m.Content, " ")
 		sendResponse(ctx, s, m.ChannelID, strings.Join(str[1:], "-"))
+	} else if strings.HasPrefix(m.Content, "emoji") {
+		span.AddField("command", "emoji-test")
+
+		sendResponse(ctx, s, m.ChannelID, "<:wave:df7ba0f4020ca70048a0226d1dfa73f6>")
 	} else if strings.HasPrefix(m.Content, "catfact") {
 		span.AddField("command", "catfact")
 
@@ -261,8 +265,8 @@ func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
 	span.AddField("command", "AdilioLol")
 
-	if strings.Contains(m.Message.Content, "lol") {
-		sendResponse(ctx, s, m.ChannelID, ":adilol:")
+	if strings.Contains(strings.ToLower(m.Message.Content), "lol") {
+		sendResponse(ctx, s, m.ChannelID, "<:adilol:769263097772245032>")
 	}
 
 	span.Send()
