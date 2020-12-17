@@ -24,7 +24,6 @@ type catFact struct {
 func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.Username == "Adilio" {
 		adilioMessage(s, m)
-		return
 	}
 	if m.Author.ID == s.State.User.ID || !strings.HasPrefix(m.Content, "!") {
 		return
@@ -258,18 +257,17 @@ func connectMinecraft(ctx context.Context) (*rcon.Connection, error) {
 }
 
 func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
-	ctx := context.Background()
-	var span *trace.Span
-	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
-
-	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
-	span.AddField("command", "AdilioLol")
-
 	if strings.Contains(strings.ToLower(m.Message.Content), "lol") {
+		ctx := context.Background()
+		var span *trace.Span
+		me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
+
+		ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+		span.AddField("command", "AdilioLol")
+
 		sendResponse(ctx, s, m.ChannelID, "<:adilio:788826086628261889> <:adilol:769263097772245032>")
 
+		span.Send()
 	}
-
-	span.Send()
 
 }
