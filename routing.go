@@ -101,12 +101,12 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 				span.AddField("error", err)
 				sendResponse(ctx, s, m.ChannelID, "error getting cat fact")
 			}
-			if strings.Contains(m.Content, "synergy") {
-				span.AddField("relationship.output.synergy", true)
-				sendResponse(ctx, s, m.ChannelID, rel.Synergy)
-			} else {
+			if strings.Contains(m.Content, "objective") {
 				span.AddField("relationship.output.objective", true)
 				sendResponse(ctx, s, m.ChannelID, rel.Objective)
+			} else {
+				span.AddField("relationship.output.synergy", true)
+				sendResponse(ctx, s, m.ChannelID, rel.Synergy)
 			}
 		} else {
 			span.AddField("flags.relationship", false)
