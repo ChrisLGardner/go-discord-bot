@@ -19,6 +19,13 @@ type catFact struct {
 	length int
 }
 
+type relationship struct {
+	synergy       string
+	objective     string
+	relationships int
+	credit        string
+}
+
 func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m string) {
 
 	ctx, span := beeline.StartSpan(ctx, "send_response")
@@ -108,4 +115,32 @@ func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.Send()
 	}
 
+}
+
+func getRelationship(ctx context.Context) (relationship, error) {
+
+	ctx, span := beeline.StartSpan(ctx, "getRelationship")
+
+	defer span.Send()
+	resp, err := http.Get("https://buildingrelationships.dev")
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return relationship{}, err
+	}
+
+	defer resp.Body.Close()
+
+	var rel relationship
+
+	err = json.NewDecoder(resp.Body).Decode(&rel)
+	if err != nil {
+		beeline.AddField(ctx, "error", err)
+		return relationship{}, err
+	}
+
+	beeline.AddField(ctx, "relationship.synergy", rel.synergy)
+	beeline.AddField(ctx, "relationship.objective", rel.objective)
+	beeline.AddField(ctx, "relationship.credit", rel.credit)
+
+	return rel, nil
 }

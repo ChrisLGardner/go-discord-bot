@@ -41,6 +41,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		help := `Commands available:
 		ping - returns pong if bot is running
 		catfact - returns a random cat fact
+		relationship - returns a random relationship objective or synergy
 		mc - runs various minecraft commands if enabled for the user
 		mtg - returns a scryfall search link based on user criteria, see mtg help for more details.
 		`
@@ -86,7 +87,31 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if strings.HasPrefix(m.Content, "relationships") {
 		span.AddField("command", "relationships")
 
-		s.ChannelMessageSend(m.ChannelID, "some interesting otter things")
+		enabled := false
+
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "relationship-command") {
+			span.AddField("flags.relationship", true)
+			enabled = true
+		}
+
+		if enabled {
+			rel, err := getRelationship(ctx)
+
+			if err != nil {
+				span.AddField("error", err)
+				sendResponse(ctx, s, m.ChannelID, "error getting cat fact")
+			}
+			if strings.Contains(m.Content, "synergy") {
+				span.AddField("relationship.output.synergy", true)
+				sendResponse(ctx, s, m.ChannelID, rel.synergy)
+			} else {
+				span.AddField("relationship.output.objective", true)
+				sendResponse(ctx, s, m.ChannelID, rel.objective)
+			}
+		} else {
+			span.AddField("flags.relationship", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
 	} else if strings.HasPrefix(m.Content, "mc") {
 		span.AddField("command", "minecraft")
 
