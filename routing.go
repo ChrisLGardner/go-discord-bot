@@ -41,7 +41,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		help := `Commands available:
 		ping - returns pong if bot is running
 		catfact - returns a random cat fact
-		relationship - returns a random relationship objective or synergy
+		relationships - returns a random relationship objective or synergy
 		mc - runs various minecraft commands if enabled for the user
 		mtg - returns a scryfall search link based on user criteria, see mtg help for more details.
 		`
