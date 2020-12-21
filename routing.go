@@ -103,10 +103,10 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			if strings.Contains(m.Content, "synergy") {
 				span.AddField("relationship.output.synergy", true)
-				sendResponse(ctx, s, m.ChannelID, rel.synergy)
+				sendResponse(ctx, s, m.ChannelID, rel.Synergy)
 			} else {
 				span.AddField("relationship.output.objective", true)
-				sendResponse(ctx, s, m.ChannelID, rel.objective)
+				sendResponse(ctx, s, m.ChannelID, rel.Objective)
 			}
 		} else {
 			span.AddField("flags.relationship", false)

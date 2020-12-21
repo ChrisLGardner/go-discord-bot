@@ -20,10 +20,10 @@ type catFact struct {
 }
 
 type relationship struct {
-	synergy       string
-	objective     string
-	relationships int
-	credit        string
+	Synergy       string
+	Objective     string
+	Relationships int
+	Credit        string
 }
 
 func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m string) {
@@ -138,9 +138,9 @@ func getRelationship(ctx context.Context) (relationship, error) {
 		return relationship{}, err
 	}
 
-	beeline.AddField(ctx, "relationship.synergy", rel.synergy)
-	beeline.AddField(ctx, "relationship.objective", rel.objective)
-	beeline.AddField(ctx, "relationship.credit", rel.credit)
+	beeline.AddField(ctx, "relationship.synergy", rel.Synergy)
+	beeline.AddField(ctx, "relationship.objective", rel.Objective)
+	beeline.AddField(ctx, "relationship.credit", rel.Credit)
 
 	return rel, nil
 }
