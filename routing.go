@@ -44,8 +44,12 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		relationships - returns a random relationship objective or synergy
 		mc - runs various minecraft commands if enabled for the user
 		mtg - returns a scryfall search link based on user criteria, see mtg help for more details.
+		source - returns the source of the bot
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
+	} else if strings.HasPrefix(m.Content, "source") {
+		span.AddField("command", "source")
+		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
 	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
