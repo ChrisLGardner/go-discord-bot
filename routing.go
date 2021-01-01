@@ -164,6 +164,29 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} else {
 			sendResponse(ctx, s, m.ChannelID, resp)
 		}
+	} else if strings.HasPrefix(m.Content, "time") {
+		span.AddField("command", "time")
+
+		enabled := false
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "timezone-command") {
+			span.AddField("flags.timezone", true)
+			enabled = true
+		}
+
+		if enabled {
+			str := strings.Replace(m.Content, "time ", "", 1)
+
+			resp, err := getTime(ctx, time.Now(), strings.ToLower(str))
+			if err != nil {
+				span.AddField("error", err)
+				sendResponse(ctx, s, m.ChannelID, err.Error())
+			} else {
+				sendResponse(ctx, s, m.ChannelID, resp)
+			}
+		} else {
+			span.AddField("flags.timezone", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
 	}
 
 	span.Send()

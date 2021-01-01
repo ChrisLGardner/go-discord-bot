@@ -38,6 +38,9 @@
         },
         "MinecraftServerPassword": {
             "type": "securestring"
+        },
+        "MembersTimezones": {
+            "type": "string"
         }
     },
     "variables": {},
@@ -83,6 +86,10 @@
                                 {
                                     "name": "MCSERVERPASS",
                                     "value": "[parameters('MinecraftServerPassword')]"
+                                },
+                                {
+                                    "name": "MEMBER_TIMEZONES",
+                                    "value": "[parameters('MembersTimezones')]"
                                 }
                             ],
                             "resources": {

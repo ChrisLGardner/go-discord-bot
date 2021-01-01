@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
@@ -143,4 +145,44 @@ func getRelationship(ctx context.Context) (relationship, error) {
 	beeline.AddField(ctx, "relationship.credit", rel.Credit)
 
 	return rel, nil
+}
+
+func getTime(ctx context.Context, t time.Time, s string) (string, error) {
+	ctx, span := beeline.StartSpan(ctx, "getTime")
+	defer span.Send()
+
+	span.AddField("timezone.member", s)
+	span.AddField("timezone.timeNow", t.UTC())
+
+	if s == "" {
+		span.AddField("timezone.error", "no user specified")
+		return "no user specified", nil
+	}
+
+	memberTimes := make(map[string]string)
+
+	err := json.Unmarshal([]byte(os.Getenv("MEMBER_TIMEZONES")), &memberTimes)
+	if err != nil {
+		span.AddField("timezone.error", err)
+		return "", err
+	}
+
+	if memberTimes[s] == "" {
+		err := fmt.Errorf("User not found")
+		span.AddField("timezone.error", err)
+		return "", err
+	}
+
+	location, err := time.LoadLocation(memberTimes[s])
+	if err != nil {
+		span.AddField("timezone.error", err)
+		return "", err
+	}
+	span.AddField("timezone.location.raw", memberTimes[s])
+	span.AddField("timezone.location.time", location)
+
+	result := fmt.Sprintf("%s : %v", s, t.In(location))
+	span.AddField("timezone.result", result)
+
+	return result, nil
 }
