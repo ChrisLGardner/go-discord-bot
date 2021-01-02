@@ -116,6 +116,18 @@ func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		span.Send()
 	}
+	if strings.Contains(strings.ToLower(m.Message.Content), "idea") {
+		ctx := context.Background()
+		var span *trace.Span
+		me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
+
+		ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+		span.AddField("command", "AdilioIdea")
+
+		sendResponse(ctx, s, m.ChannelID, "<:steviecoaster:767894596687888444> <:steviefok:774365852698804224>")
+
+		span.Send()
+	}
 
 }
 
