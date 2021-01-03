@@ -28,22 +28,22 @@ func TestGetTime(t *testing.T) {
 		},
 		{
 			"chris",
-			"chris : 2021-01-02 12:00:00 +0000 GMT",
+			"chris : 12:00, 2 January 2021, (GMT)",
 			false,
 		},
 		{
 			"sarah",
-			"sarah : 2021-01-02 07:00:00 -0500 EST",
+			"sarah : 07:00, 2 January 2021, (EST)",
 			false,
 		},
 		{
 			"dave",
-			"dave : 2021-01-02 20:00:00 +0800 AWST",
+			"dave : 20:00, 2 January 2021, (Australia/Perth)",
 			false,
 		},
 		{
 			"mary rose",
-			"mary rose : 2021-01-02 04:00:00 -0800 PST",
+			"mary rose : 04:00, 2 January 2021, (US/Pacific)",
 			false,
 		},
 		{

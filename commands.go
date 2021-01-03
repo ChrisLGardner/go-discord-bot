@@ -193,7 +193,9 @@ func getTime(ctx context.Context, t time.Time, s string) (string, error) {
 	span.AddField("timezone.location.raw", memberTimes[s])
 	span.AddField("timezone.location.time", location)
 
-	result := fmt.Sprintf("%s : %v", s, t.In(location))
+	raw := t.In(location)
+	result := fmt.Sprintf("%s : %02d:%02d, %d %s %d, (%s)", s, raw.Hour(), raw.Minute(), raw.Day(), raw.Month(), raw.Year(), raw.Location())
+
 	span.AddField("timezone.result", result)
 
 	return result, nil
