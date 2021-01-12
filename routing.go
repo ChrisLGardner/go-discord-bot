@@ -45,6 +45,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		mc - runs various minecraft commands if enabled for the user
 		mtg - returns a scryfall search link based on user criteria, see mtg help for more details.
 		source - returns the source of the bot
+		time <username> - returns the time in that users location. Not available everywhere.
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
 	} else if strings.HasPrefix(m.Content, "source") {
