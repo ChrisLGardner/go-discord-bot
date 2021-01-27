@@ -41,6 +41,9 @@
         },
         "MembersTimezones": {
             "type": "string"
+        },
+        "LunchLink": {
+            "type": "string"
         }
     },
     "variables": {},
@@ -90,6 +93,10 @@
                                 {
                                     "name": "MEMBER_TIMEZONES",
                                     "value": "[parameters('MembersTimezones')]"
+                                },
+                                {
+                                    "name": "LUNCH_LINK",
+                                    "value": "[parameters('LunchLink')]"
                                 }
                             ],
                             "resources": {

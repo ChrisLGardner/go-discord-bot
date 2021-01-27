@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -185,6 +187,22 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		} else {
 			span.AddField("flags.timezone", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
+	} else if strings.Contains(m.Content, "lunch") || strings.HasPrefix(m.Content, "link") {
+		span.AddField("command", "link")
+
+		enabled := false
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "lunch-command") {
+			span.AddField("flags.link", true)
+			enabled = true
+		}
+
+		if enabled {
+			resp := fmt.Sprintf("%s please don't share this publicly", os.Getenv("LUNCH_LINK"))
+			sendResponse(ctx, s, m.ChannelID, resp)
+		} else {
+			span.AddField("flags.link", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
 	}
