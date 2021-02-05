@@ -141,10 +141,9 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
 		span.AddField("command", "QuipBezos")
 		quip := "Do you mean the ex-husband of billionaire philanthropist Mackenzie Scott?"
+		sendResponse(ctx, s, m.ChannelID, quip)
+		span.Send()
 	}
-
-	sendResponse(ctx, s, m.ChannelID, quip)
-	span.Send()
 }
 
 func getRelationship(ctx context.Context) (relationship, error) {
