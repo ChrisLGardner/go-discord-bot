@@ -18,6 +18,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.Username == "Adilio" {
 		adilioMessage(s, m)
 	}
+	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
+		quipMessages(s, m)
+	}
 	if m.Author.ID == s.State.User.ID || !strings.HasPrefix(m.Content, "!") {
 		return
 	}
