@@ -131,6 +131,22 @@ func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 }
 
+func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
+	ctx := context.Background()
+	var span *trace.Span
+	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
+
+	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+
+	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
+		span.AddField("command", "QuipBezos")
+		quip := "Do you mean the ex-husband of billionaire philanthropist Mackenzie Scott?"
+	}
+
+	sendResponse(ctx, s, m.ChannelID, quip)
+	span.Send()
+}
+
 func getRelationship(ctx context.Context) (relationship, error) {
 
 	ctx, span := beeline.StartSpan(ctx, "getRelationship")
