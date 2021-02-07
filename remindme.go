@@ -246,3 +246,14 @@ func storeReminder(ctx context.Context, r Reminder) error {
 
 	return nil
 }
+
+func reminderHelp() string {
+	help := `RemindMe Help:
+	Will at creator near specified time with requested message.
+	Supports (m)inutes, (h/H)ours, (d/D)ays, or (M)onths
+	
+	e.g. !remindme post memes 1h 
+	`
+
+	return help
+}

@@ -51,6 +51,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		mtg - returns a scryfall search link based on user criteria, see mtg help for more details.
 		source - returns the source of the bot
 		time <username> - returns the time in that users location. Not available everywhere.
+		remindme <text> <time> - sets a reminder for the future with a specified message.
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
 	} else if strings.HasPrefix(m.Content, "source") {
@@ -209,7 +210,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.link", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content, "remind") {
+	} else if strings.HasPrefix(m.Content, "remindme") {
 		span.AddField("command", "reminder")
 
 		enabled := false
@@ -219,12 +220,17 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if enabled {
-			resp, err := createReminder(ctx, m.Message)
-			if err != nil {
-				span.AddField("error", err)
-				sendResponse(ctx, s, m.ChannelID, err.Error())
+			if m.Content != "remindme help" {
+				resp, err := createReminder(ctx, m.Message)
+				if err != nil {
+					span.AddField("error", err)
+					sendResponse(ctx, s, m.ChannelID, err.Error())
+				}
+				sendResponse(ctx, s, m.ChannelID, resp)
+			} else {
+				resp := reminderHelp()
+				sendResponse(ctx, s, m.ChannelID, resp)
 			}
-			sendResponse(ctx, s, m.ChannelID, resp)
 		} else {
 			span.AddField("flags.reminder", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
