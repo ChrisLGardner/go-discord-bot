@@ -206,6 +206,26 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.link", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
+	} else if strings.HasPrefix(m.Content, "remind") {
+		span.AddField("command", "reminder")
+
+		enabled := false
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "reminder-command") {
+			span.AddField("flags.reminder", true)
+			enabled = true
+		}
+
+		if enabled {
+			resp, err := createReminder(ctx, m.Message)
+			if err != nil {
+				span.AddField("error", err)
+				sendResponse(ctx, s, m.ChannelID, err.Error())
+			}
+			sendResponse(ctx, s, m.ChannelID, resp)
+		} else {
+			span.AddField("flags.reminder", false)
+			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+		}
 	}
 
 	span.Send()
