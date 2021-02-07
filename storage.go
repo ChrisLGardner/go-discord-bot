@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/honeycombio/beeline-go"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -47,11 +48,18 @@ func writeDbObject(ctx context.Context, mc *mongo.Client, obj interface{}) error
 	ctx, span := beeline.StartSpan(ctx, "mongo.writeObject")
 	defer span.Send()
 
+	data, err := bson.Marshal(obj)
+	if err != nil {
+		span.AddField("mongo.writeObject.error", err)
+		return err
+	}
+
 	collection := mc.Database("reminders").Collection("reminders")
 	span.AddField("mongo.writeObject.collection", collection.Name())
 	span.AddField("mongo.writeObject.database", collection.Database().Name())
+	span.AddField("mongo.writeObject.object", data)
 
-	res, err := collection.InsertOne(ctx, obj)
+	res, err := collection.InsertOne(ctx, data)
 	if err != nil {
 		span.AddField("mongo.writeObject.error", err)
 		return err
