@@ -14,14 +14,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type reminder struct {
-	due             time.Time
-	message         string
-	server          string
-	creator         string
-	channel         string
-	sourceMessage   string
-	sourceTimestamp time.Time
+type Reminder struct {
+	Due             time.Time `json:"due" bson:"due"`
+	Message         string    `json:"message" bson:"message"`
+	Server          string    `json:"server" bson:"server"`
+	Creator         string    `json:"creator" bson:"creator"`
+	Channel         string    `json:"channel" bson:"channel"`
+	SourceMessage   string    `json:"sourceMessage" bson:"sourceMessage"`
+	SourceTimestamp time.Time `json:"sourceTimestamp" bson:"sourceTimestamp"`
 }
 
 func sendReminders(session *discordgo.Session) {
@@ -53,17 +53,17 @@ func sendReminders(session *discordgo.Session) {
 
 		for _, r := range reminders {
 			ctx, childSpan := beeline.StartSpan(ctx, "sendReminderIndividual")
-			childSpan.AddField("sendReminderIndividual.due", r.due)
-			childSpan.AddField("sendReminderIndividual.message", r.message)
-			childSpan.AddField("sendReminderIndividual.server", r.server)
-			childSpan.AddField("sendReminderIndividual.creator", r.creator)
-			childSpan.AddField("sendReminderIndividual.channel", r.channel)
-			childSpan.AddField("sendReminderIndividual.sourceMessage", r.sourceMessage)
-			childSpan.AddField("sendReminderIndividual.sourceTimestamp", r.sourceTimestamp)
+			childSpan.AddField("sendReminderIndividual.due", r.Due)
+			childSpan.AddField("sendReminderIndividual.message", r.Message)
+			childSpan.AddField("sendReminderIndividual.server", r.Server)
+			childSpan.AddField("sendReminderIndividual.creator", r.Creator)
+			childSpan.AddField("sendReminderIndividual.channel", r.Channel)
+			childSpan.AddField("sendReminderIndividual.sourceMessage", r.SourceMessage)
+			childSpan.AddField("sendReminderIndividual.sourceTimestamp", r.SourceTimestamp)
 
-			message := fmt.Sprintf("Hey <@%s>, remember %s", r.creator, r.message)
+			message := fmt.Sprintf("Hey <@%s>, remember %s", r.Creator, r.Message)
 
-			sendResponse(ctx, session, r.channel, message)
+			sendResponse(ctx, session, r.Channel, message)
 
 			childSpan.Send()
 		}
@@ -72,7 +72,7 @@ func sendReminders(session *discordgo.Session) {
 	}
 }
 
-func findReminders(ctx context.Context, db *mongo.Client, interval int) ([]reminder, error) {
+func findReminders(ctx context.Context, db *mongo.Client, interval int) ([]Reminder, error) {
 
 	return nil, nil
 }
@@ -97,7 +97,7 @@ func createReminder(ctx context.Context, message *discordgo.Message) (string, er
 	return "Reminder added.", nil
 }
 
-func parseReminder(ctx context.Context, message *discordgo.Message) (reminder, error) {
+func parseReminder(ctx context.Context, message *discordgo.Message) (Reminder, error) {
 
 	ctx, span := beeline.StartSpan(ctx, "parseReminder")
 	defer span.Send()
@@ -118,7 +118,7 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (reminder, e
 
 	if len(matchingStrings) == 0 {
 		span.AddField("parseReminder.error", "No interval specified")
-		return reminder{}, fmt.Errorf("No interval specified")
+		return Reminder{}, fmt.Errorf("No interval specified")
 	}
 
 	matches = matchingStrings[0]
@@ -135,7 +135,7 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (reminder, e
 	sourceDate, err := message.Timestamp.Parse()
 	if err != nil {
 		span.AddField("parseReminder.error", err)
-		return reminder{}, err
+		return Reminder{}, err
 	}
 
 	var dueDate time.Time
@@ -152,31 +152,33 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (reminder, e
 		dueDate = sourceDate.AddDate(0, timeCount, 0)
 	}
 
-	r := reminder{
-		due:             dueDate,
-		message:         reminderText,
-		server:          message.GuildID,
-		creator:         message.Author.ID,
-		channel:         message.ChannelID,
-		sourceMessage:   message.ID,
-		sourceTimestamp: sourceDate,
+	r := Reminder{
+		Due:             dueDate,
+		Message:         reminderText,
+		Server:          message.GuildID,
+		Creator:         message.Author.ID,
+		Channel:         message.ChannelID,
+		SourceMessage:   message.ID,
+		SourceTimestamp: sourceDate,
 	}
 
-	span.AddField("parseReminder.due", r.due)
-	span.AddField("parseReminder.message", r.message)
-	span.AddField("parseReminder.server", r.server)
-	span.AddField("parseReminder.creator", r.creator)
-	span.AddField("parseReminder.channel", r.channel)
-	span.AddField("parseReminder.sourceMessage", r.sourceMessage)
-	span.AddField("parseReminder.sourceTimestamp", r.sourceTimestamp)
+	span.AddField("parseReminder.due", r.Due)
+	span.AddField("parseReminder.message", r.Message)
+	span.AddField("parseReminder.server", r.Server)
+	span.AddField("parseReminder.creator", r.Creator)
+	span.AddField("parseReminder.channel", r.Channel)
+	span.AddField("parseReminder.sourceMessage", r.SourceMessage)
+	span.AddField("parseReminder.sourceTimestamp", r.SourceTimestamp)
 
+	span.AddField("parseReminder.reminder", r)
 	return r, nil
 }
 
-func storeReminder(ctx context.Context, r reminder) error {
+func storeReminder(ctx context.Context, r Reminder) error {
 
 	ctx, span := beeline.StartSpan(ctx, "storeReminder")
 	defer span.Send()
+	span.AddField("storeReminder.reminder", r)
 
 	db, err := connectDb(ctx, os.Getenv("COSMOSDB_URI"))
 	if err != nil {
