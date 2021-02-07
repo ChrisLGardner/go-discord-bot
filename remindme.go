@@ -11,6 +11,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/honeycombio/beeline-go"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -68,13 +69,59 @@ func sendReminders(session *discordgo.Session) {
 			childSpan.Send()
 		}
 
+		err = db.Disconnect(ctx)
+		if err != nil {
+			span.AddField("sendReminders.find.error", err)
+			span.Send()
+			continue
+		}
+
 		span.Send()
 	}
 }
 
 func findReminders(ctx context.Context, db *mongo.Client, interval int) ([]Reminder, error) {
 
-	return nil, nil
+	ctx, span := beeline.StartSpan(ctx, "findReminders")
+	defer span.Send()
+
+	start := time.Now().UnixNano() / 1000000
+	end := time.Now().Add(time.Duration(interval)*time.Minute).UnixNano() / 1000000
+	query := bson.M{
+		"due": bson.M{
+			"$gt": start,
+			"$lt": end,
+		},
+	}
+
+	span.AddField("findReminders.query", query)
+
+	res, err := runQuery(ctx, db, query)
+	if err != nil {
+		span.AddField("findReminders.error", err)
+		return nil, err
+	}
+
+	var reminders []Reminder
+	for _, item := range res {
+		var r Reminder
+
+		temp, err := bson.Marshal(item)
+		if err != nil {
+			span.AddField("findReminders.error", err)
+			return nil, err
+		}
+
+		err = bson.Unmarshal(temp, &r)
+		if err != nil {
+			span.AddField("findReminders.error", err)
+			return nil, err
+		}
+
+		reminders = append(reminders, r)
+	}
+
+	return reminders, nil
 }
 
 func createReminder(ctx context.Context, message *discordgo.Message) (string, error) {
