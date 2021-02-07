@@ -212,6 +212,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	} else if strings.HasPrefix(m.Content, "remindme") {
 		span.AddField("command", "reminder")
+		m.Content = strings.Replace(m.Content, "remindme ", "", 1)
 
 		enabled := false
 		if getFeatureFlagState(ctx, m.Author.ID, roles, "reminder-command") {
@@ -220,7 +221,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if enabled {
-			if m.Content != "remindme help" {
+			if m.Content != "help" {
 				resp, err := createReminder(ctx, m.Message)
 				if err != nil {
 					span.AddField("error", err)
