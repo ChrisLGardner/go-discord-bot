@@ -38,9 +38,32 @@ func connectDb(ctx context.Context, uri string) (*mongo.Client, error) {
 	return c, nil
 }
 
-func runQuery(ctx context.Context, mc *mongo.Client, query interface{}) (string, error) {
+func runQuery(ctx context.Context, mc *mongo.Client, query interface{}) ([]bson.M, error) {
 
-	return "", nil
+	ctx, span := beeline.StartSpan(ctx, "mongo.runQuery")
+	defer span.Send()
+
+	collection := mc.Database("reminders").Collection("reminders")
+	span.AddField("mongo.runQuery.collection", collection.Name())
+	span.AddField("mongo.runQuery.database", collection.Database().Name())
+	span.AddField("mongo.runQuery.query", query)
+
+	cursor, err := collection.Find(ctx, query)
+	if err != nil {
+		span.AddField("mongo.runQuery.error", err)
+		return nil, err
+	}
+
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		span.AddField("mongo.runQuery.error", err)
+		return nil, err
+	}
+
+	span.AddField("mongo.runQuery.results.Count", len(results))
+	span.AddField("mongo.runQuery.results.raw", results)
+
+	return results, nil
 }
 
 func writeDbObject(ctx context.Context, mc *mongo.Client, obj interface{}) error {

@@ -39,6 +39,8 @@ func main() {
 		<-sc
 	}()
 
+	go sendReminders(session)
+
 	session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
 
 	session.AddHandler(MessageRespond)
