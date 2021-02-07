@@ -53,6 +53,9 @@
             "apiVersion": "2018-10-01",
             "name": "[parameters('containerName')]",
             "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDb/databaseAccounts',parameters('containerName'))]"
+            ],
             "properties": {
                 "containers": [
                     {
@@ -97,6 +100,10 @@
                                 {
                                     "name": "LUNCH_LINK",
                                     "value": "[parameters('LunchLink')]"
+                                },
+                                {
+                                    "name": "COSMOSDB_URI",
+                                    "value": "[listConnectionStrings(resourceid('Microsoft.DocumentDb/databaseAccounts',parameters('containerName')),'2020-04-01').connectionStrings[0].connectionString]"
                                 }
                             ],
                             "resources": {
@@ -130,6 +137,52 @@
                 "networkProfile": {
                     "id": "[resourceId('Microsoft.Network/networkProfiles','discord-bot-networkProfile')]"
                 }
+            }
+        },
+        {
+            "apiVersion": "2020-04-01",
+            "kind": "MongoDB",
+            "type": "Microsoft.DocumentDb/databaseAccounts",
+            "name": "[parameters('containerName')]",
+            "location": "westeurope",
+            "properties": {
+                "databaseAccountOfferType": "Standard",
+                "locations": [
+                    {
+                        "id": "[concat(parameters('containerName'), '-westeurope')]",
+                        "failoverPriority": 0,
+                        "locationName": "westeurope"
+                    }
+                ],
+                "backupPolicy": {
+                    "type": "Periodic",
+                    "periodicModeProperties": {
+                        "backupIntervalInMinutes": 1440,
+                        "backupRetentionIntervalInHours": 48
+                    }
+                },
+                "isVirtualNetworkFilterEnabled": false,
+                "virtualNetworkRules": [],
+                "ipRules": [],
+                "dependsOn": [],
+                "enableMultipleWriteLocations": false,
+                "capabilities": [
+                    {
+                        "name": "EnableMongo"
+                    },
+                    {
+                        "name": "DisableRateLimitingResponses"
+                    }
+                ],
+                "apiProperties": {
+                    "serverVersion": "3.6"
+                },
+                "enableFreeTier": true
+            },
+            "tags": {
+                "defaultExperience": "Azure Cosmos DB for MongoDB API",
+                "hidden-cosmos-mmspecial": "",
+                "CosmosAccountType": "Non-Production"
             }
         }
     ]
