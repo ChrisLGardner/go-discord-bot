@@ -144,11 +144,9 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (reminder, e
 	switch elements["interval"] {
 	case "m":
 		dueDate = sourceDate.Add(time.Duration(timeCount) * time.Minute)
-	case "h":
-	case "H":
+	case "h", "H":
 		dueDate = sourceDate.Add(time.Duration(timeCount) * time.Hour)
-	case "d":
-	case "D":
+	case "d", "D":
 		dueDate = sourceDate.AddDate(0, 0, timeCount)
 	case "M":
 		dueDate = sourceDate.AddDate(0, timeCount, 0)
