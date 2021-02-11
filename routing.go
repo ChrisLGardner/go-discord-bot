@@ -57,6 +57,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if strings.HasPrefix(m.Content, "source") {
 		span.AddField("command", "source")
 		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
+	} else if strings.HasPrefix(m.Content, "featurerequest") {
+		span.AddField("command", "featurerequest")
+		sendResponse(ctx, s, m.ChannelID, "File your owned damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues")
 	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
