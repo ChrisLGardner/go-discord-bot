@@ -239,6 +239,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.reminder", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
+	} else if strings.HasPrefix(m.Content, "language") {
+		span.AddField("command", "language")
+		sendResponse(ctx, s, m.ChannelID, "https://tenor.com/view/captain-america-marvel-avengers-gif-18378867")
 	}
 
 	span.Send()
