@@ -253,7 +253,93 @@ func reminderHelp() string {
 	Supports (m)inutes, (h/H)ours, (d/D)ays, or (M)onths
 	
 	e.g. !remindme post memes 1h 
+
+	List all outstanding reminders using either:
+	!remindme list
+	for all remidners created by the user on the server
+	!remindme list all
+	for all reminders created on the server by all users
 	`
 
 	return help
+}
+
+func listReminders(ctx context.Context, session *discordgo.Session, message *discordgo.Message) (string, error) {
+	ctx, span := beeline.StartSpan(ctx, "listReminders")
+	defer span.Send()
+
+	start := time.Now().UnixNano() / 1000000
+
+	var query bson.M
+	if message.Content == "list all" {
+		span.AddField("listReminders.type", "all")
+		query = bson.M{
+			"due": bson.M{
+				"$gt": start,
+			},
+			"server": bson.M{
+				"$eq": message.GuildID,
+			},
+		}
+	} else {
+		span.AddField("listReminders.type", "singleUser")
+		query = bson.M{
+			"due": bson.M{
+				"$gt": start,
+			},
+			"server": bson.M{
+				"$eq": message.GuildID,
+			},
+			"creator": bson.M{
+				"$eq": message.Author.ID,
+			},
+		}
+	}
+
+	span.AddField("listReminders.query", query)
+
+	db, err := connectDb(ctx, os.Getenv("COSMOSDB_URI"))
+	if err != nil {
+		span.AddField("listReminders.connect.error", err)
+		return "", err
+	}
+
+	res, err := runQuery(ctx, db, query)
+	if err != nil {
+		span.AddField("listReminders.error", err)
+		return "", err
+	}
+
+	var response strings.Builder
+	count := 0
+	for _, item := range res {
+		var r Reminder
+
+		temp, err := bson.Marshal(item)
+		if err != nil {
+			span.AddField("listReminders.error", err)
+			return "", err
+		}
+
+		err = bson.Unmarshal(temp, &r)
+		if err != nil {
+			span.AddField("listReminders.error", err)
+			return "", err
+		}
+
+		author, err := session.GuildMember(r.Server, r.Creator)
+		if err != nil {
+			span.AddField("listReminders.error", err)
+			return "", err
+		}
+		count++
+
+		// from: due: message:
+		text := fmt.Sprintf("From: %v Due: %v Message: %v", author, r.Due, r.Message)
+		response.WriteString(text)
+		response.WriteString("\n")
+	}
+	span.AddField("listReminders.count", count)
+
+	return response.String(), nil
 }
