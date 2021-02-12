@@ -60,7 +60,13 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
 	} else if strings.HasPrefix(m.Content, "featurerequest") {
 		span.AddField("command", "featurerequest")
-		sendResponse(ctx, s, m.ChannelID, "File your owned damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues")
+
+		fqResponses := []string{"File your own damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues",
+		                        "I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
+		randomIndex := rand.Intn(len(fqResponses))
+		pickResponse := fqResponses[randomIndex]
+
+		sendResponse(ctx, s, m.ChannelID, pickResponse)
 	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
