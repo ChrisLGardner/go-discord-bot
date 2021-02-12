@@ -341,7 +341,12 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 		r.Message = replaceMentionedUser(ctx, session, r.Message, r.Server)
 
 		// from: due: message:
-		text := fmt.Sprintf("From: %v Due: %v Message: %v", author.User.Username, r.Due, r.Message)
+		var text string
+		if author.Nick != "" {
+			text = fmt.Sprintf("From: %v Due: %v Message: %v", author.Nick, r.Due, r.Message)
+		} else {
+			text = fmt.Sprintf("From: %v Due: %v Message: %v", author.User.Username, r.Due, r.Message)
+		}
 		response.WriteString(text)
 		response.WriteString("\n")
 	}
