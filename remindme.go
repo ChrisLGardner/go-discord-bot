@@ -335,7 +335,7 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 		count++
 
 		// from: due: message:
-		text := fmt.Sprintf("From: %v Due: %v Message: %v", author, r.Due, r.Message)
+		text := fmt.Sprintf("From: %v Due: %v Message: %v", author.User.Username, r.Due, r.Message)
 		response.WriteString(text)
 		response.WriteString("\n")
 	}
