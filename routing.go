@@ -224,15 +224,23 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if enabled {
-			if m.Content != "help" {
-				resp, err := createReminder(ctx, m.Message)
+			if m.Content == "help" {
+				resp := reminderHelp()
+				sendResponse(ctx, s, m.ChannelID, resp)
+
+			} else if strings.HasPrefix(m.Content, "list") {
+				resp, err := listReminders(ctx, s, m.Message)
 				if err != nil {
 					span.AddField("error", err)
 					sendResponse(ctx, s, m.ChannelID, err.Error())
 				}
 				sendResponse(ctx, s, m.ChannelID, resp)
 			} else {
-				resp := reminderHelp()
+				resp, err := createReminder(ctx, m.Message)
+				if err != nil {
+					span.AddField("error", err)
+					sendResponse(ctx, s, m.ChannelID, err.Error())
+				}
 				sendResponse(ctx, s, m.ChannelID, resp)
 			}
 		} else {
