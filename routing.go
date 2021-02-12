@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"math/rand"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
