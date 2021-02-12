@@ -40,6 +40,18 @@ func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m strin
 
 }
 
+func chooseRandom(opt []string) {
+	span.AddField("function", "chooseRandom")
+	span.AddField("possible.choices", opt)
+
+	randomIndex := rand.Intn(len(opt))
+	span.AddField("random.number", randomIndex)
+
+	choice := opt[randomIndex]
+
+	return choice, nil
+}
+
 func getCatFact(ctx context.Context) (catFact, error) {
 
 	ctx, span := beeline.StartSpan(ctx, "getCatFact")
@@ -147,39 +159,23 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func featureRequestResponse(s *discordgo.Session, m *discordgo.MessageCreate) {
-	ctx := context.Background()
-	var span *trace.Span
-	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
-
-	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
-
-	span.AddField("command", "featurerequest")
+func featureRequestResponse() {
+	span.AddField("function", "featureRequestResponse")
 
 	fqResponses := []string{"File your own damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues",
 							"I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
-	randomIndex := rand.Intn(len(fqResponses))
-	pickResponse := fqResponses[randomIndex]
-
-	sendResponse(ctx, s, m.ChannelID, pickResponse)
+	fqResponse := chooseRandom(fqResponses)
+	return fqResponse, nil
 }
 
-func languageResponse(s *discordgo.Session, m *discordgo.MessageCreate) {
-	ctx := context.Background()
-	var span *trace.Span
-	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
-
-	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
-
-	span.AddField("command", "language")
+func languageResponse() {
+	span.AddField("function", "languageResponse")
 
 	languageGifs := []string{"https://tenor.com/view/captain-america-marvel-avengers-gif-18378867",
 							 "https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
 							 "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
-	randomIndex := rand.Intn(len(languageGifs))
-	pickGif := languageGifs[randomIndex]
-
-	sendResponse(ctx, s, m.ChannelID, pickGif)
+	pickGif := chooseRandom(languageGifs)
+	return pickGif, nil
 }
 
 func getRelationship(ctx context.Context) (relationship, error) {

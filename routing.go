@@ -58,7 +58,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "source")
 		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
 	} else if strings.HasPrefix(m.Content, "featurerequest") {
-		featureRequestResponse(s, m)
+		span.AddField("command", "featurerequest")
+		resp := featureRequestResponse()
+		sendResponse(ctx, s, m.ChannelID, resp)
 	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
@@ -239,7 +241,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
 	} else if strings.HasPrefix(m.Content, "language") {
-		languageResponse(s, m)
+		span.AddField("command", "language")
+		resp := languageResponse()
+		sendResponse(ctx, s, m.ChannelID, resp)
 	}
 
 	span.Send()
