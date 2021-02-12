@@ -59,14 +59,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "source")
 		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
 	} else if strings.HasPrefix(m.Content, "featurerequest") {
-		span.AddField("command", "featurerequest")
-
-		fqResponses := []string{"File your own damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues",
-		                        "I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
-		randomIndex := rand.Intn(len(fqResponses))
-		pickResponse := fqResponses[randomIndex]
-
-		sendResponse(ctx, s, m.ChannelID, pickResponse)
+		featureRequestResponse(s, m)
 	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
@@ -247,15 +240,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
 	} else if strings.HasPrefix(m.Content, "language") {
-		span.AddField("command", "language")
-
-		languageGifs := []string{"https://tenor.com/view/captain-america-marvel-avengers-gif-18378867",
-		                         "https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
-					             "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
-		randomIndex := rand.Intn(len(languageGifs))
-		pickGif := languageGifs[randomIndex]
-
-		sendResponse(ctx, s, m.ChannelID, pickGif)
+		languageResponse(s, m)
 	}
 
 	span.Send()
