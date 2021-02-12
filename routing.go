@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"math/rand"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
@@ -241,7 +242,14 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	} else if strings.HasPrefix(m.Content, "language") {
 		span.AddField("command", "language")
-		sendResponse(ctx, s, m.ChannelID, "https://tenor.com/view/captain-america-marvel-avengers-gif-18378867")
+
+		languageGifs := []string{"https://tenor.com/view/captain-america-marvel-avengers-gif-18378867",
+		                         "https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
+					             "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
+		randomIndex := rand.Intn(len(languageGifs))
+		pickGif := languageGifs[randomIndex]
+
+		sendResponse(ctx, s, m.ChannelID, pickGif)
 	}
 
 	span.Send()
