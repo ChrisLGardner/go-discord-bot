@@ -338,6 +338,8 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 		}
 		count++
 
+		r.Message = replaceMentionedUser(ctx, session, r.Message, r.Server)
+
 		// from: due: message:
 		text := fmt.Sprintf("From: %v Due: %v Message: %v", author.User.Username, r.Due, r.Message)
 		response.WriteString(text)
@@ -346,4 +348,42 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 	span.AddField("listReminders.count", count)
 
 	return response.String(), nil
+}
+
+func replaceMentionedUser(ctx context.Context, session *discordgo.Session, message string, server string) string {
+	ctx, span := beeline.StartSpan(ctx, "replaceMentionedUser")
+	defer span.Send()
+
+	mentionPattern := regexp.MustCompile("<@!(?P<id>\\d+)>")
+	names := mentionPattern.SubexpNames()
+	elements := map[string]string{}
+
+	matchingStrings := mentionPattern.FindAllStringSubmatch(message, -1)
+	matches := []string{}
+
+	beeline.AddField(ctx, "replaceMentionedUser.matcheslength", len(matchingStrings))
+	beeline.AddField(ctx, "replaceMentionedUser.matches", matchingStrings)
+
+	if len(matchingStrings) == 0 {
+		return message
+	}
+
+	matches = matchingStrings[0]
+
+	for i, match := range matches {
+		elements[names[i]] = match
+	}
+
+	beeline.AddField(ctx, "replaceMentionedUser.id", elements["id"])
+
+	user, err := session.GuildMember(server, elements["id"])
+	if err != nil {
+		span.AddField("replaceMentionedUser.error", err)
+		return message
+	}
+	beeline.AddField(ctx, "replaceMentionedUser.nick", user.Nick)
+
+	message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.Nick, 1)
+
+	return message
 }
