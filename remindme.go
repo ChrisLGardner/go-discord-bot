@@ -310,6 +310,10 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 		return "", err
 	}
 
+	if len(res) == 0 {
+		return "No remaining remidners", nil
+	}
+
 	var response strings.Builder
 	count := 0
 	for _, item := range res {
