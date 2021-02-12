@@ -366,8 +366,8 @@ func replaceMentionedUser(ctx context.Context, session *discordgo.Session, messa
 	matchingStrings := mentionPattern.FindAllStringSubmatch(message, -1)
 	matches := []string{}
 
-	beeline.AddField(ctx, "replaceMentionedUser.matcheslength", len(matchingStrings))
-	beeline.AddField(ctx, "replaceMentionedUser.matches", matchingStrings)
+	span.AddField("replaceMentionedUser.matcheslength", len(matchingStrings))
+	span.AddField("replaceMentionedUser.matches", matchingStrings)
 
 	if len(matchingStrings) == 0 {
 		return message
@@ -379,16 +379,22 @@ func replaceMentionedUser(ctx context.Context, session *discordgo.Session, messa
 		elements[names[i]] = match
 	}
 
-	beeline.AddField(ctx, "replaceMentionedUser.id", elements["id"])
+	span.AddField("replaceMentionedUser.id", elements["id"])
 
 	user, err := session.GuildMember(server, elements["id"])
 	if err != nil {
 		span.AddField("replaceMentionedUser.error", err)
 		return message
 	}
-	beeline.AddField(ctx, "replaceMentionedUser.nick", user.Nick)
 
-	message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.Nick, 1)
+	span.AddField("replaceMentionedUser.nick", user.Nick)
 
+	if user.Nick != "" {
+		message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.Nick, 1)
+		span.AddField("replaceMentionedUser.user", user.Nick)
+	} else {
+		message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.User.Username, 1)
+		span.AddField("replaceMentionedUser.user", user.User.Username)
+	}
 	return message
 }
