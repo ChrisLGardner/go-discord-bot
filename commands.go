@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
 	"time"
-	"math/rand"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
@@ -37,6 +37,20 @@ func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m strin
 	beeline.AddField(ctx, "chennel", cid)
 
 	s.ChannelMessageSend(cid, m)
+
+}
+
+func sendReply(ctx context.Context, s *discordgo.Session, m string, om *discordgo.MessageReference) {
+
+	ctx, span := beeline.StartSpan(ctx, "sendReply")
+	defer span.Send()
+
+	span.AddField("sendReply.response", m)
+	span.AddField("sendReply.originalMessage.id", om.MessageID)
+	span.AddField("sendReply.originalMessage.guildID", om.GuildID)
+	span.AddField("sendReply.originalMessage.channelID", om.ChannelID)
+
+	s.ChannelMessageSendReply(om.ChannelID, m, om)
 
 }
 
@@ -154,12 +168,12 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func featureRequestResponse(ctx context.Context, author string) (string) {
+func featureRequestResponse(ctx context.Context, author string) string {
 	ctx, span := beeline.StartSpan(ctx, "featureRequestResponse")
 	defer span.Send()
 
 	fqResponses := []string{"File your own damned issue <@%s>: https://github.com/ChrisLGardner/go-discord-bot/issues",
-							"Hey <@%s>, I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
+		"Hey <@%s>, I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
 	span.AddField("featureRequestResponse.possibleChoices", fqResponses)
 
 	fqResponse, randNum := chooseRandom(fqResponses)
@@ -170,13 +184,13 @@ func featureRequestResponse(ctx context.Context, author string) (string) {
 	return message
 }
 
-func languageResponse(ctx context.Context) (string) {
+func languageResponse(ctx context.Context) string {
 	ctx, span := beeline.StartSpan(ctx, "languageResponse")
 	defer span.Send()
 
 	languageGifs := []string{"https://tenor.com/view/captain-america-marvel-avengers-gif-18378867",
-							 "https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
-							 "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
+		"https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
+		"https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
 	span.AddField("languageResponse.possibleChoices", languageGifs)
 
 	pickGif, randNum := chooseRandom(languageGifs)
