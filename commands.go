@@ -40,11 +40,11 @@ func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m strin
 
 }
 
-func chooseRandom(opt []string) (string, int, error) {
+func chooseRandom(opt []string) (string, int) {
 	randomIndex := rand.Intn(len(opt))
 	choice := opt[randomIndex]
 
-	return choice, randomIndex, nil
+	return choice, randomIndex
 }
 
 func getCatFact(ctx context.Context) (catFact, error) {
@@ -162,7 +162,7 @@ func featureRequestResponse(ctx context.Context) (string, error) {
 							"I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
 	span.AddField("possible.choices", fqResponses)
 
-	fqResponse, randNum, err := chooseRandom(fqResponses)
+	fqResponse, randNum := chooseRandom(fqResponses)
 	span.AddField("random.number", randNum)
 
 	return fqResponse, nil
@@ -177,7 +177,7 @@ func languageResponse(ctx context.Context) (string, error) {
 							 "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
 	span.AddField("possible.choices", languageGifs)
 
-	pickGif, randNum, err := chooseRandom(languageGifs)
+	pickGif, randNum := chooseRandom(languageGifs)
 	span.AddField("random.number", randNum)
 
 	return pickGif, nil
