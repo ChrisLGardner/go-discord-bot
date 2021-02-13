@@ -257,6 +257,52 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	span.Send()
 }
 
+func MessageReact(s *discordgo.Session, mra *discordgo.MessageReactionAdd) {
+	if mra.UserID == s.State.User.ID {
+		return
+	}
+
+	ctx := context.Background()
+	var span *trace.Span
+
+	message, err := s.ChannelMessage(mra.ChannelID, mra.MessageID)
+	if err != nil {
+		sendResponse(ctx, s, mra.ChannelID, "Failed to get message details for reaction")
+		return
+	}
+	me := hnydiscordgo.MessageEvent{Message: message, Context: ctx}
+
+	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+
+	span.AddField("name", "MessageReact")
+	span.AddField("messageReact.user", mra.UserID)
+	span.AddField("messageReact.emoji.id", mra.Emoji.ID)
+	span.AddField("messageReact.emoji.name", mra.Emoji.Name)
+	span.AddField("messageReact.emoji.managed", mra.Emoji.Managed)
+	span.AddField("messageReact.emoji.animated", mra.Emoji.Animated)
+	span.AddField("messageReact.emoji.available", mra.Emoji.Available)
+	span.AddField("messageReact.originalMessage.id", message.ID)
+	span.AddField("messageReact.originalMessage.guildID", message.GuildID)
+	span.AddField("messageReact.originalMessage.channelID", message.ChannelID)
+	span.AddField("messageReact.originalMessage.content", message.Content)
+	span.AddField("messageReact.originalMessage.author.id", message.Author.ID)
+	span.AddField("messageReact.originalMessage.author.username", message.Author.Username)
+
+	if message.MessageReference == nil {
+		message.MessageReference = &discordgo.MessageReference{
+			MessageID: message.ID,
+			ChannelID: message.ChannelID,
+			GuildID:   message.GuildID,
+		}
+	}
+	if mra.Emoji.Name == "language" {
+		span.AddField("reaction", "language")
+		resp := languageResponse(ctx)
+		sendReply(ctx, s, resp, message.MessageReference)
+	}
+	span.Send()
+}
+
 func getMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Message) ([]string, error) {
 	ctx, span := beeline.StartSpan(ctx, "get_discord_role")
 	defer span.Send()

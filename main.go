@@ -44,6 +44,7 @@ func main() {
 	session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
 
 	session.AddHandler(MessageRespond)
+	session.AddHandler(MessageReact)
 }
 
 func getFeatureFlagState(ctx context.Context, id string, roles []string, flag string) bool {
