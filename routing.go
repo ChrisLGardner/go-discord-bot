@@ -296,6 +296,11 @@ func MessageReact(s *discordgo.Session, mra *discordgo.MessageReactionAdd) {
 		}
 	}
 	if mra.Emoji.Name == "language" {
+		for _, r := range message.Reactions {
+			if r.Emoji.Name == "language" && r.Count > 1 {
+				return
+			}
+		}
 		span.AddField("reaction", "language")
 		resp := languageResponse(ctx)
 		sendReply(ctx, s, resp, message.MessageReference)
