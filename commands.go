@@ -162,7 +162,7 @@ func featureRequestResponse(ctx context.Context) (string, error) {
 							"I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
 	span.AddField("possible.choices", fqResponses)
 
-	fqResponse, randNum := chooseRandom(fqResponses)
+	fqResponse, randNum, err := chooseRandom(fqResponses)
 	span.AddField("random.number", randNum)
 
 	return fqResponse, nil
@@ -177,7 +177,7 @@ func languageResponse(ctx context.Context) (string, error) {
 							 "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
 	span.AddField("possible.choices", languageGifs)
 
-	pickGif, randNum := chooseRandom(languageGifs)
+	pickGif, randNum, err := chooseRandom(languageGifs)
 	span.AddField("random.number", randNum)
 
 	return pickGif, nil
