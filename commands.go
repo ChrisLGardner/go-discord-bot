@@ -154,18 +154,20 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func featureRequestResponse(ctx context.Context) (string) {
+func featureRequestResponse(ctx context.Context, author string) (string) {
 	ctx, span := beeline.StartSpan(ctx, "featureRequestResponse")
 	defer span.Send()
 
-	fqResponses := []string{"File your own damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues",
-							"I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
-	span.AddField("possible.choices", fqResponses)
+	fqResponses := []string{"File your own damned issue <@%s>: https://github.com/ChrisLGardner/go-discord-bot/issues",
+							"Hey <@%s>, I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
+	span.AddField("featureRequestResponse.possibleChoices", fqResponses)
 
 	fqResponse, randNum := chooseRandom(fqResponses)
-	span.AddField("random.number", randNum)
+	message := fmt.Sprintf(fqResponse, author)
 
-	return fqResponse
+	span.AddField("featureRequestResponse.randomNumber", randNum)
+
+	return message
 }
 
 func languageResponse(ctx context.Context) (string) {
@@ -175,10 +177,10 @@ func languageResponse(ctx context.Context) (string) {
 	languageGifs := []string{"https://tenor.com/view/captain-america-marvel-avengers-gif-18378867",
 							 "https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
 							 "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
-	span.AddField("possible.choices", languageGifs)
+	span.AddField("languageResponse.possibleChoices", languageGifs)
 
 	pickGif, randNum := chooseRandom(languageGifs)
-	span.AddField("random.number", randNum)
+	span.AddField("languageResponse.randomNumber", randNum)
 
 	return pickGif
 }
