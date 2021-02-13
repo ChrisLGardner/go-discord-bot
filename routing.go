@@ -59,7 +59,8 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
 	} else if strings.HasPrefix(m.Content, "featurerequest") {
 		span.AddField("command", "featurerequest")
-		sendResponse(ctx, s, m.ChannelID, "File your owned damned issue: https://github.com/ChrisLGardner/go-discord-bot/issues")
+		resp := featureRequestResponse(ctx, m.Author.ID)
+		sendResponse(ctx, s, m.ChannelID, resp)
 	} else if strings.HasPrefix(m.Content, "ping") {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
@@ -249,11 +250,11 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	} else if strings.HasPrefix(m.Content, "language") {
 		span.AddField("command", "language")
-		sendResponse(ctx, s, m.ChannelID, "https://tenor.com/view/captain-america-marvel-avengers-gif-18378867")
+		resp := languageResponse(ctx)
+		sendResponse(ctx, s, m.ChannelID, resp)
 	}
 
 	span.Send()
-
 }
 
 func getMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Message) ([]string, error) {

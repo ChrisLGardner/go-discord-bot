@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"math/rand"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
@@ -37,6 +38,13 @@ func sendResponse(ctx context.Context, s *discordgo.Session, cid string, m strin
 
 	s.ChannelMessageSend(cid, m)
 
+}
+
+func chooseRandom(opt []string) (string, int) {
+	randomIndex := rand.Intn(len(opt))
+	choice := opt[randomIndex]
+
+	return choice, randomIndex
 }
 
 func getCatFact(ctx context.Context) (catFact, error) {
@@ -144,6 +152,37 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 		sendResponse(ctx, s, m.ChannelID, quip)
 		span.Send()
 	}
+}
+
+func featureRequestResponse(ctx context.Context, author string) (string) {
+	ctx, span := beeline.StartSpan(ctx, "featureRequestResponse")
+	defer span.Send()
+
+	fqResponses := []string{"File your own damned issue <@%s>: https://github.com/ChrisLGardner/go-discord-bot/issues",
+							"Hey <@%s>, I'll keep an eye out for your PR: https://github.com/ChrisLGardner/go-discord-bot/pulls"}
+	span.AddField("featureRequestResponse.possibleChoices", fqResponses)
+
+	fqResponse, randNum := chooseRandom(fqResponses)
+	message := fmt.Sprintf(fqResponse, author)
+
+	span.AddField("featureRequestResponse.randomNumber", randNum)
+
+	return message
+}
+
+func languageResponse(ctx context.Context) (string) {
+	ctx, span := beeline.StartSpan(ctx, "languageResponse")
+	defer span.Send()
+
+	languageGifs := []string{"https://tenor.com/view/captain-america-marvel-avengers-gif-18378867",
+							 "https://tenor.com/view/marvel-tony-stark-iron-man-gif-18079972",
+							 "https://tenor.com/view/captain-america-marvel-avengers-gif-14328153"}
+	span.AddField("languageResponse.possibleChoices", languageGifs)
+
+	pickGif, randNum := chooseRandom(languageGifs)
+	span.AddField("languageResponse.randomNumber", randNum)
+
+	return pickGif
 }
 
 func getRelationship(ctx context.Context) (relationship, error) {
