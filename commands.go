@@ -154,7 +154,7 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func featureRequestResponse(ctx context.Context) (string, error) {
+func featureRequestResponse(ctx context.Context) (string) {
 	ctx, span := beeline.StartSpan(ctx, "featureRequestResponse")
 	defer span.Send()
 
@@ -165,10 +165,10 @@ func featureRequestResponse(ctx context.Context) (string, error) {
 	fqResponse, randNum := chooseRandom(fqResponses)
 	span.AddField("random.number", randNum)
 
-	return fqResponse, nil
+	return fqResponse
 }
 
-func languageResponse(ctx context.Context) (string, error) {
+func languageResponse(ctx context.Context) (string) {
 	ctx, span := beeline.StartSpan(ctx, "languageResponse")
 	defer span.Send()
 
@@ -180,7 +180,7 @@ func languageResponse(ctx context.Context) (string, error) {
 	pickGif, randNum := chooseRandom(languageGifs)
 	span.AddField("random.number", randNum)
 
-	return pickGif, nil
+	return pickGif
 }
 
 func getRelationship(ctx context.Context) (relationship, error) {
