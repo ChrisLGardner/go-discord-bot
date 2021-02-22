@@ -52,6 +52,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		source - returns the source of the bot
 		time <username> - returns the time in that users location. Not available everywhere.
 		remindme <text> <time> - sets a reminder for the future with a specified message.
+		kevin - returns a Home Alone Kevin! gif.
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
 	} else if strings.HasPrefix(m.Content, "source") {
