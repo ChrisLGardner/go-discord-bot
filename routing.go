@@ -214,7 +214,13 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.link", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content, "remindme") {
+	} else if strings.HasPrefix(m.Content,"kevin") {
+		span.AddField("command","kevin")
+		resp := kevinResponse(ctx)
+		sendResponse(ctx,s,m.ChannelID,resp)
+	}
+	
+	else if strings.HasPrefix(m.Content, "remindme") {
 		span.AddField("command", "reminder")
 		m.Content = strings.Replace(m.Content, "remindme ", "", 1)
 
