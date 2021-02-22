@@ -199,6 +199,13 @@ func languageResponse(ctx context.Context) string {
 	return pickGif
 }
 
+func kevinResponse(ctx context.Context) string {
+	ctx,span := beeline.StartSpan(ctx,"kevinResponse")
+	defer span.Send()
+
+	return "https://gph.is/g/4zVyePw"
+}
+
 func getRelationship(ctx context.Context) (relationship, error) {
 
 	ctx, span := beeline.StartSpan(ctx, "getRelationship")
