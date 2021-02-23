@@ -15,13 +15,18 @@ import (
 
 //MessageRespond is the handler for which message respond function should be called
 func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
 	if m.Author.Username == "Adilio" {
 		adilioMessage(s, m)
 	}
+
 	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
 		quipMessages(s, m)
 	}
-	if m.Author.ID == s.State.User.ID || !strings.HasPrefix(m.Content, "!") {
+	if !strings.HasPrefix(m.Content, "!") {
 		return
 	}
 
@@ -215,10 +220,10 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.link", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content,"kevin") {
-		span.AddField("command","kevin")
+	} else if strings.HasPrefix(m.Content, "kevin") {
+		span.AddField("command", "kevin")
 		resp := kevinResponse(ctx)
-		sendResponse(ctx,s,m.ChannelID,resp)
+		sendResponse(ctx, s, m.ChannelID, resp)
 	} else if strings.HasPrefix(m.Content, "remindme") {
 		span.AddField("command", "reminder")
 		m.Content = strings.Replace(m.Content, "remindme ", "", 1)
