@@ -200,10 +200,20 @@ func languageResponse(ctx context.Context) string {
 }
 
 func kevinResponse(ctx context.Context) string {
-	ctx,span := beeline.StartSpan(ctx,"kevinResponse")
+	ctx, span := beeline.StartSpan(ctx, "kevinResponse")
 	defer span.Send()
 
-	return "https://gph.is/g/4zVyePw"
+	kevins := []string{
+		"https://gph.is/g/4zVyePw",
+		"https://tenor.com/view/home-alone-kevin-gif-15171451",
+	}
+
+	span.AddField("languageResponse.possibleChoices", kevins)
+
+	pickGif, randNum := chooseRandom(kevins)
+	span.AddField("languageResponse.randomNumber", randNum)
+
+	return pickGif
 }
 
 func getRelationship(ctx context.Context) (relationship, error) {
