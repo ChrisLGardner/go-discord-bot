@@ -359,7 +359,7 @@ func replaceMentionedUser(ctx context.Context, session *discordgo.Session, messa
 	ctx, span := beeline.StartSpan(ctx, "replaceMentionedUser")
 	defer span.Send()
 
-	mentionPattern := regexp.MustCompile("<@!(?P<id>\\d+)>")
+	mentionPattern := regexp.MustCompile("<@!?(?P<id>\\d+)>")
 	names := mentionPattern.SubexpNames()
 	elements := map[string]string{}
 
@@ -389,12 +389,22 @@ func replaceMentionedUser(ctx context.Context, session *discordgo.Session, messa
 
 	span.AddField("replaceMentionedUser.nick", user.Nick)
 
-	if user.Nick != "" {
-		message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.Nick, 1)
-		span.AddField("replaceMentionedUser.user", user.Nick)
-	} else {
-		message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.User.Username, 1)
-		span.AddField("replaceMentionedUser.user", user.User.Username)
+	if strings.Contains(message, "<@!") {
+		if user.Nick != "" {
+			message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.Nick, 1)
+			span.AddField("replaceMentionedUser.user", user.Nick)
+		} else {
+			message = strings.Replace(message, ("<@!" + elements["id"] + ">"), user.User.Username, 1)
+			span.AddField("replaceMentionedUser.user", user.User.Username)
+		}
+	} else if strings.Contains(message, "<@") {
+		if user.Nick != "" {
+			message = strings.Replace(message, ("<@" + elements["id"] + ">"), user.Nick, 1)
+			span.AddField("replaceMentionedUser.user", user.Nick)
+		} else {
+			message = strings.Replace(message, ("<@" + elements["id"] + ">"), user.User.Username, 1)
+			span.AddField("replaceMentionedUser.user", user.User.Username)
+		}
 	}
 	return message
 }
