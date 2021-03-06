@@ -8,7 +8,7 @@ param (
 )
 
 $Headers = @{
-    authorization = "bearer $ApiKey"
+    Authorization = "Bearer $ApiKey"
 }
 
 $Uri = "https://api.optimizely.com/v2/features"
