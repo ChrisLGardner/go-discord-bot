@@ -65,7 +65,7 @@ func sendReminders(session *discordgo.Session) {
 			message := fmt.Sprintf("Hey <@%s>, remember %s", r.Creator, r.Message)
 
 			messageReference := &discordgo.MessageReference{
-				MessageID: r.Message,
+				MessageID: r.SourceMessage,
 				ChannelID: r.Channel,
 				GuildID:   r.Server,
 			}
