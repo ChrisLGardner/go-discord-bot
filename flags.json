@@ -1,0 +1,37 @@
+[
+    {
+        "key": "catfact-command",
+        "name": "catfact-command",
+        "description": ""
+    },
+    {
+        "key": "lunch-command",
+        "name": "lunch-command",
+        "description": ""
+    },
+    {
+        "key": "mc-admin",
+        "name": "mc-admin",
+        "description": ""
+    },
+    {
+        "key": "mc-commands",
+        "name": "mc-commands",
+        "description": ""
+    },
+    {
+        "key": "relationship-command",
+        "name": "relationship-command",
+        "description": ""
+    },
+    {
+        "key": "reminder-command",
+        "name": "reminder-command",
+        "description": ""
+    },
+    {
+        "key": "timezone-command",
+        "name": "timezone-command",
+        "description": ""
+    }
+]

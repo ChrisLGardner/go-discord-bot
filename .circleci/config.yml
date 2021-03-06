@@ -143,7 +143,22 @@ jobs:
                   curl https://api.honeycomb.io/1/markers/$HONEYCOMB_DATASET -X POST  \
                   -H "X-Honeycomb-Team: $MARKER_API_KEY"  \
                   -d '{"message":"deploy '$MAJOR'.'$MINOR'.'$BUILD_NUMBER'", "type":"deploy", "start_time":'$DATE'}'
-                  
+
+  featureflags:
+      docker:
+        - image: mcr.microsoft.com/powershell:latest
+      environment:
+        BUILD_NUMBER: <<pipeline.number>>
+      steps:
+        - buildevents/with_job_span:
+            steps:
+              - checkout
+            
+              # push new flags into Optimizely
+              - run: |
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID publish_feature_flags -- \
+                  pwsh -File Update-FeatureFlags.ps1 -ApiKey $OPTIMIZELY_TOKEN -Path flags.json
+
 workflows:
   build:
     jobs:
@@ -175,7 +190,12 @@ workflows:
           filters:
             branches:
               only: main
-
+      - featureflags:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
       - deploy:
           requires:
             - publish
