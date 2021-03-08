@@ -46,7 +46,11 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	span.AddField("member.roles", roles)
 
-	if strings.HasPrefix(m.Content, "help") {
+	split := strings.SplitAfterN(m.Content, " ", 1)
+	command := strings.ToLower(split[0])
+	m.Content = split[1]
+
+	if command == "help" {
 		span.AddField("command", "help")
 		help := `Commands available:
 		ping - returns pong if bot is running
@@ -60,29 +64,29 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		kevin - returns a Home Alone Kevin! gif.
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
-	} else if strings.HasPrefix(m.Content, "source") {
+	} else if command == "source" {
 		span.AddField("command", "source")
 		sendResponse(ctx, s, m.ChannelID, "You can find the source here: https://github.com/ChrisLGardner/go-discord-bot")
-	} else if strings.HasPrefix(m.Content, "featurerequest") {
+	} else if command == "featurerequest" {
 		span.AddField("command", "featurerequest")
 		resp := featureRequestResponse(ctx, m.Author.ID)
 		sendResponse(ctx, s, m.ChannelID, resp)
-	} else if strings.HasPrefix(m.Content, "ping") {
+	} else if command == "ping" {
 		span.AddField("command", "ping")
 		sendResponse(ctx, s, m.ChannelID, "pong")
-	} else if strings.HasPrefix(m.Content, "test") {
+	} else if command == "test" {
 		span.AddField("command", "test")
 		time.Sleep(3 * time.Second)
 		sendResponse(ctx, s, m.ChannelID, "test success")
-	} else if strings.HasPrefix(m.Content, "split") {
+	} else if command == "split" {
 		span.AddField("command", "split")
 		str := strings.Split(m.Content, " ")
 		sendResponse(ctx, s, m.ChannelID, strings.Join(str[1:], "-"))
-	} else if strings.HasPrefix(m.Content, "emoji") {
+	} else if command == "emoji" {
 		span.AddField("command", "emoji-test")
 
 		sendResponse(ctx, s, m.ChannelID, "<:emotest:788860836009345024>")
-	} else if strings.HasPrefix(m.Content, "catfact") {
+	} else if command == "catfact" {
 		span.AddField("command", "catfact")
 
 		enabled := false
@@ -105,7 +109,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
 
-	} else if strings.HasPrefix(m.Content, "relationships") {
+	} else if command == "relationships" {
 		span.AddField("command", "relationships")
 
 		enabled := false
@@ -133,7 +137,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.relationship", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content, "mc") {
+	} else if command == "mc" {
 		span.AddField("command", "minecraft")
 
 		enabled := false
@@ -169,7 +173,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.minecraft", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content, "mtg") {
+	} else if command == "mtg" {
 		span.AddField("command", "magic")
 
 		str := strings.Replace(m.Content, "mtg", "", 1)
@@ -181,7 +185,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} else {
 			sendResponse(ctx, s, m.ChannelID, resp)
 		}
-	} else if strings.HasPrefix(m.Content, "time") {
+	} else if command == "time" {
 		span.AddField("command", "time")
 
 		enabled := false
@@ -204,7 +208,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.timezone", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.Contains(m.Content, "lunch") || strings.HasPrefix(m.Content, "link") {
+	} else if strings.Contains(command, "lunch") || strings.HasPrefix(command, "link") {
 		span.AddField("command", "link")
 
 		enabled := false
@@ -220,11 +224,11 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.link", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content, "kevin") {
+	} else if command == "kevin" {
 		span.AddField("command", "kevin")
 		resp := kevinResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
-	} else if strings.HasPrefix(m.Content, "remindme") {
+	} else if command == "remindme" {
 		span.AddField("command", "reminder")
 		m.Content = strings.Replace(m.Content, "remindme ", "", 1)
 
@@ -258,7 +262,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			span.AddField("flags.reminder", false)
 			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
 		}
-	} else if strings.HasPrefix(m.Content, "language") {
+	} else if command == "language" {
 		span.AddField("command", "language")
 		resp := languageResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
