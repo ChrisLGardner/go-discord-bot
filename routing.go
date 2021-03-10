@@ -46,7 +46,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	span.AddField("member.roles", roles)
 
-	split := strings.SplitAfterN(m.Content, " ", 1)
+	split := strings.SplitAfterN(m.Content, " ", 2)
 	command := strings.ToLower(split[0])
 	m.Content = split[1]
 
