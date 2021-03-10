@@ -50,6 +50,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	command := strings.ToLower(split[0])
 	m.Content = split[1]
 
+	span.AddField("parsedCommand", command)
+	span.AddField("remainingContent", m.Content)
+
 	if command == "help" {
 		span.AddField("command", "help")
 		help := `Commands available:
