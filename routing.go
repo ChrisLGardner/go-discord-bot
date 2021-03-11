@@ -48,7 +48,9 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	split := strings.SplitAfterN(m.Content, " ", 2)
 	command := strings.ToLower(split[0])
-	m.Content = split[1]
+	if len(split) == 2 {
+		m.Content = split[1]
+	}
 
 	span.AddField("parsedCommand", command)
 	span.AddField("remainingContent", m.Content)
