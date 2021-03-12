@@ -168,7 +168,7 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func featureRequestResponse(ctx context.Context) string {
+func featureRequestResponse(ctx context.Context, author string)) string {
 	ctx, span := beeline.StartSpan(ctx, "featureRequestResponse")
 	defer span.Send()
 
