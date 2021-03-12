@@ -168,7 +168,7 @@ func quipMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func featureRequestResponse(ctx context.Context, author string) string {
+func featureRequestResponse(ctx context.Context) string {
 	ctx, span := beeline.StartSpan(ctx, "featureRequestResponse")
 	defer span.Send()
 
@@ -195,6 +195,21 @@ func languageResponse(ctx context.Context) string {
 
 	pickGif, randNum := chooseRandom(languageGifs)
 	span.AddField("languageResponse.randomNumber", randNum)
+
+	return pickGif
+}
+
+func toBeFairResponse(ctx context.Context) string {
+	ctx, span := beeline.StartSpan(ctx, "toBeFairResponse")
+	defer span.Send()
+
+	toBeFairGifs := []string{"https://tenor.com/view/letter-kenny-wayne-to-be-fair-gif-14458907",
+		"https://tenor.com/view/letterkenny-to-be-fair-serious-lets-be-fair-gif-16087355",
+		"https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631"}
+	span.AddField("toBeFairResponse.possibleChoices", toBeFairGifs)
+
+	pickGif, randNum := chooseRandom(toBeFairGifs)
+	span.AddField("toBeFairResponse.randomNumber", randNum)
 
 	return pickGif
 }
