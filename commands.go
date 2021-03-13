@@ -199,6 +199,21 @@ func languageResponse(ctx context.Context) string {
 	return pickGif
 }
 
+func toBeFairResponse(ctx context.Context) string {
+	ctx, span := beeline.StartSpan(ctx, "toBeFairResponse")
+	defer span.Send()
+
+	toBeFairGifs := []string{"https://tenor.com/view/letter-kenny-wayne-to-be-fair-gif-14458907",
+		"https://tenor.com/view/letterkenny-to-be-fair-serious-lets-be-fair-gif-16087355",
+		"https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631"}
+	span.AddField("toBeFairResponse.possibleChoices", toBeFairGifs)
+
+	pickGif, randNum := chooseRandom(toBeFairGifs)
+	span.AddField("toBeFairResponse.randomNumber", randNum)
+
+	return pickGif
+}
+
 func kevinResponse(ctx context.Context) string {
 	ctx, span := beeline.StartSpan(ctx, "kevinResponse")
 	defer span.Send()

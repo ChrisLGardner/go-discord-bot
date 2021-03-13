@@ -26,6 +26,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
 		quipMessages(s, m)
 	}
+
 	if !strings.HasPrefix(m.Content, "!") {
 		return
 	}
@@ -67,6 +68,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		time <username> - returns the time in that users location. Not available everywhere.
 		remindme <text> <time> - sets a reminder for the future with a specified message.
 		kevin - returns a Home Alone Kevin! gif.
+		tobefair - returns a Letterkenny To Be Fair gif.
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
 	} else if command == "source" {
@@ -270,6 +272,10 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if command == "language" {
 		span.AddField("command", "language")
 		resp := languageResponse(ctx)
+		sendResponse(ctx, s, m.ChannelID, resp)
+	} else if command == "tobefair" {
+		span.AddField("command", "tobefair")
+		resp := toBeFairResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
 	}
 
