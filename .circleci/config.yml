@@ -71,7 +71,6 @@ jobs:
                     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID bicep_build -- \
                     bicep build deploy.bicep --outfile artifacts/deploy.json
 
-
             - run: echo "size=$(du -sb artifacts | cut -f 1)" >> $BASH_ENV
             
             - buildevents/add_context:
@@ -89,6 +88,7 @@ jobs:
                 # Must be relative path from root
                 paths:
                   - go-discord-bot
+                  - deploy.json
 
   publish:
     machine: true
