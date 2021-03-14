@@ -113,7 +113,7 @@ jobs:
 
   deploy:
     docker:
-      - image: mcr.microsoft.com/azure-cli:2.9.1
+      - image: mcr.microsoft.com/azure-cli:2.20.0
     environment:
       BUILD_NUMBER: <<pipeline.number>>
     steps:
@@ -127,7 +127,7 @@ jobs:
             
             - run: |
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_container_update -- \
-                  az deployment group create --resource-group $AZ_RG --template-file deploy.json \
+                  az deployment group create --resource-group $AZ_RG -f deploy.json \
                   --name $MAJOR.$MINOR.$BUILD_NUMBER \
                   --parameters containerName=$AZ_ACI containerVersion=$MAJOR.$MINOR.$BUILD_NUMBER Token=$DISCORD_TOKEN \
                   ImageRegistryPassword=$AZ_REG_PASSWORD HoneycombDataset=$HONEYCOMB_DATASET HoneycombApiKey=$MARKER_API_KEY \
