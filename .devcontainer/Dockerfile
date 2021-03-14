@@ -76,6 +76,11 @@ RUN apt-get update \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/* /tmp/gotools
 
+RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 \
+    && chmod +x ./bicep \
+    && mv ./bicep /usr/local/bin/bicep
+
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 # Update this to "on" or "off" as appropriate
 ENV GO111MODULE=auto
 
