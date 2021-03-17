@@ -273,7 +273,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "language")
 		resp := languageResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
-	} else if command == "tobefair" {
+	} else if command == "tobefair" || command == "tbf" {
 		span.AddField("command", "tobefair")
 		resp := toBeFairResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
