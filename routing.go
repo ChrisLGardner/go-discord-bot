@@ -25,6 +25,8 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
 		quipMessages(s, m)
+	} else if strings.Contains(strings.ToLower(m.Message.Content), "to be fair") {
+		toBeFairAutoResponse(s, m)
 	}
 
 	if !strings.HasPrefix(m.Content, "!") {

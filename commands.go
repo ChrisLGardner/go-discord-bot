@@ -214,6 +214,29 @@ func toBeFairResponse(ctx context.Context) string {
 	return pickGif
 }
 
+func toBeFairAutoResponse(s *discordgo.Session, m *discordgo.MessageCreate) {
+	ctx := context.Background()
+	var span *trace.Span
+	me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
+
+	ctx, span = hnydiscordgo.StartSpanOrTraceFromMessage(&me, s)
+
+	span.AddField("command", "toBeFairAutoResponse")
+
+	deciders := [string]{"no", "yes"}
+	decisionResponse, randNum := chooseRandom(deciders)
+
+	if decisionResponse == "yes") {
+		span.AddField("toBeFairAutoResponse.RandomDecision", "Yes, responding")
+		resp := toBeFairResponse(ctx)
+		sendResponse(ctx, s, m.ChannelID, resp)
+	} else {
+		span.AddField("toBeFairAutoResponse.RandomDecision", "No, skipped")
+	}
+
+	span.Send()
+}
+
 func kevinResponse(ctx context.Context) string {
 	ctx, span := beeline.StartSpan(ctx, "kevinResponse")
 	defer span.Send()
