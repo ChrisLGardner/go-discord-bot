@@ -225,6 +225,7 @@ func toBeFairAutoResponse(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	deciders := []string{"no", "yes"}
 	decisionResponse, randNum := chooseRandom(deciders)
+	span.AddField("toBeFairAutoResponse.randomNumber", randNum)
 
 	if decisionResponse == "yes" {
 		span.AddField("toBeFairAutoResponse.RandomDecision", "Yes, responding")
