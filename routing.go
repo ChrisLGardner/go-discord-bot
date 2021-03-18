@@ -25,6 +25,8 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.Contains(strings.ToLower(m.Message.Content), "bezos") {
 		quipMessages(s, m)
+	} else if strings.Contains(strings.ToLower(m.Message.Content), "to be fair") {
+		toBeFairAutoResponse(s, m)
 	}
 
 	if !strings.HasPrefix(m.Content, "!") {
@@ -273,7 +275,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "language")
 		resp := languageResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
-	} else if command == "tobefair" {
+	} else if command == "tobefair" || command == "tbf" {
 		span.AddField("command", "tobefair")
 		resp := toBeFairResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
