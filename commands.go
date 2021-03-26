@@ -138,7 +138,7 @@ func adilioMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		span.Send()
 	}
-	if strings.Contains(strings.ToLower(m.Message.Content), "idea") {
+	if strings.Contains(strings.ToLower(m.Message.Content), " idea ") {
 		ctx := context.Background()
 		var span *trace.Span
 		me := hnydiscordgo.MessageEvent{Message: m.Message, Context: ctx}
