@@ -82,7 +82,7 @@ func rollDice(ctx context.Context, dice string) (string, error) {
 
 		count := 0
 		for _, v := range res {
-			if v >= 8 {
+			if v >= 8 || v == 0 {
 				count++
 			}
 		}

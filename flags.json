@@ -33,5 +33,11 @@
         "key": "timezone-command",
         "name": "timezone-command",
         "description": ""
+    },
+    {
+        "key": "rolldice-command",
+        "name": "rolldice-command",
+        "description": ""
     }
+    
 ]
