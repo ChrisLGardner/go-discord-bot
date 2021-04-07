@@ -104,10 +104,10 @@ func rollDice(ctx context.Context, dice string) (string, error) {
 func roll(num int, again string) []int {
 
 	results := []int{}
+	rand.Seed(time.Now().Unix())
 
 	for num != 0 {
 		num--
-		rand.Seed(time.Now().Unix())
 		dice := rand.Intn(9)
 		results = append(results, dice)
 		if again == "8a" && (dice == 8 || dice == 9 || dice == 0) {
