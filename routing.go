@@ -71,6 +71,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		remindme <text> <time> - sets a reminder for the future with a specified message.
 		kevin - returns a Home Alone Kevin! gif.
 		tobefair - returns a Letterkenny To Be Fair gif.
+		roll <number>/<help>- rolls the specified number of dice and returns number of successes or returns help.
 		`
 		sendResponse(ctx, s, m.ChannelID, help)
 	} else if command == "source" {
@@ -279,6 +280,28 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "tobefair")
 		resp := toBeFairResponse(ctx)
 		sendResponse(ctx, s, m.ChannelID, resp)
+	} else if command == "r" || command == "roll" {
+		span.AddField("command", "rolldice")
+
+		enabled := false
+		if getFeatureFlagState(ctx, m.Author.ID, roles, "rolldice-command") {
+			span.AddField("flags.rolldice", true)
+			enabled = true
+		}
+
+		if enabled {
+			if m.Content == "help" {
+				resp := rollDiceHelp()
+				sendResponse(ctx, s, m.ChannelID, resp)
+			} else {
+				resp, err := rollDice(ctx, m.Content)
+				if err != nil {
+					span.AddField("error", err)
+					sendResponse(ctx, s, m.ChannelID, err.Error())
+				}
+				sendResponse(ctx, s, m.ChannelID, resp)
+			}
+		}
 	}
 
 	span.Send()
