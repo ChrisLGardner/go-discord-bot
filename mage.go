@@ -69,7 +69,7 @@ func rollDice(ctx context.Context, dice string) (string, error) {
 
 		if res[0] == 1 {
 			result = fmt.Sprintf("Dramatic Failure (%v)", res)
-		} else if res[0] == 10 {
+		} else if res[0] == 0 {
 			result = fmt.Sprintf("Success (%v)", res)
 		} else {
 			result = fmt.Sprintf("Failure (%v)", res)
