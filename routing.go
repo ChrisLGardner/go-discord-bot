@@ -270,7 +270,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		} else {
 			span.AddField("flags.reminder", false)
-			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
+
 		}
 	} else if command == "language" {
 		span.AddField("command", "language")
