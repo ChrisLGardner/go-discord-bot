@@ -91,7 +91,8 @@ jobs:
                   - deploy.json
 
   publish:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     environment:
       BUILD_NUMBER: <<pipeline.number>>
     steps:
