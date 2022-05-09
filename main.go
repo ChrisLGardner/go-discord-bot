@@ -45,6 +45,7 @@ func main() {
 
 	session.AddHandler(MessageRespond)
 	session.AddHandler(MessageReact)
+	session.AddHandler(JoinThread)
 }
 
 func getFeatureFlagState(ctx context.Context, id string, roles []string, flag string) bool {
@@ -93,4 +94,12 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 	}
 
 	return enabled
+}
+
+func JoinThread(s *discordgo.Session, t *discordgo.ThreadCreate) {
+	// ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
+	// defer span.Send()
+	if t.IsThread() {
+		s.ThreadJoin(t.Channel.ID)
+	}
 }
