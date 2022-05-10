@@ -43,6 +43,25 @@ func StartSpanOrTraceFromMessage(me *MessageEvent, s *discordgo.Session) (contex
 	return ctx, span
 }
 
+func StartTraceFromThreadJoin(c *discordgo.Channel, s *discordgo.Session) (context.Context, *trace.Span) {
+	ctx := context.Background()
+	var tr *trace.Trace
+	ctx, tr = trace.NewTrace(ctx, "")
+
+	span := tr.GetRootSpan()
+
+	span.AddField("name", "JoinThread")
+	for k, v := range getChannelProps(c) {
+		span.AddField(k, v)
+	}
+
+	for k, v := range getSessionProps(s) {
+		span.AddField(k, v)
+	}
+
+	return ctx, span
+}
+
 func getMessageProps(me *MessageEvent) map[string]interface{} {
 
 	messageProps := make(map[string]interface{})
@@ -80,4 +99,21 @@ func getSessionProps(s *discordgo.Session) map[string]interface{} {
 	sessionProps["session.ShardID"] = s.ShardID
 
 	return sessionProps
+}
+
+func getChannelProps(c *discordgo.Channel) map[string]interface{} {
+	channelProps := make(map[string]interface{})
+
+	channelProps["channel.ID"] = c.ID
+	channelProps["channel.GuildID"] = c.GuildID
+	channelProps["channel.Name"] = c.Name
+	channelProps["channel.Type"] = c.Type
+	channelProps["channel.NSFW"] = c.NSFW
+	channelProps["channel.ParentID"] = c.ParentID
+
+	if c.IsThread() {
+		channelProps["channel.OwnerID"] = c.OwnerID
+	}
+
+	return channelProps
 }

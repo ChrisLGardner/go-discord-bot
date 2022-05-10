@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
 	"github.com/honeycombio/beeline-go"
 	"github.com/optimizely/go-sdk/pkg/client"
 	"github.com/optimizely/go-sdk/pkg/entities"
@@ -97,8 +98,12 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 }
 
 func JoinThread(s *discordgo.Session, t *discordgo.ThreadCreate) {
-	// ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
-	// defer span.Send()
+
+	ctx, span := hnydiscordgo.StartTraceFromThreadJoin(t.Channel, s)
+	defer span.Send()
+
+	beeline.AddField(ctx, "JoinThread.AddUser.Id", s.State.User.ID)
+
 	if t.IsThread() {
 		s.ThreadJoin(t.Channel.ID)
 	}
