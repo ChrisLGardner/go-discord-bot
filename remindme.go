@@ -185,11 +185,11 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (Reminder, e
 
 	reminderText := strings.Replace(message.Content, fmt.Sprintf("%s%s", elements["count"], elements["interval"]), "", 1)
 
-	sourceDate, err := message.Timestamp.Parse()
-	if err != nil {
-		span.AddField("parseReminder.error", err)
-		return Reminder{}, err
-	}
+	sourceDate := message.Timestamp
+	// if err != nil {
+	// 	span.AddField("parseReminder.error", err)
+	// 	return Reminder{}, err
+	// }
 
 	var dueDate time.Time
 	timeCount, _ := strconv.Atoi(elements["count"])
