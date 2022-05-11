@@ -99,25 +99,13 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if command == "catfact" {
 		span.AddField("command", "catfact")
 
-		enabled := false
+		fact, err := getCatFact(ctx)
 
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "catfact-command") {
-			span.AddField("flags.catfact", true)
-			enabled = true
+		if err != nil {
+			span.AddField("error", err)
+			sendResponse(ctx, s, m.ChannelID, "error getting cat fact")
 		}
-
-		if enabled {
-			fact, err := getCatFact(ctx)
-
-			if err != nil {
-				span.AddField("error", err)
-				sendResponse(ctx, s, m.ChannelID, "error getting cat fact")
-			}
-			sendResponse(ctx, s, m.ChannelID, fact.Fact)
-		} else {
-			span.AddField("flags.catfact", false)
-			sendResponse(ctx, s, m.ChannelID, "Command not allowed")
-		}
+		sendResponse(ctx, s, m.ChannelID, fact.Fact)
 
 	} else if command == "relationships" {
 		span.AddField("command", "relationships")
