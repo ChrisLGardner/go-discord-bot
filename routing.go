@@ -351,6 +351,9 @@ func getMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Mess
 	defer span.Send()
 
 	member, err := s.GuildMember(m.GuildID, m.Author.ID)
+	beeline.AddField(ctx, "role.guidid", m.GuildID)
+	beeline.AddField(ctx, "role.author.id", m.Author.ID)
+	beeline.AddField(ctx, "role.author.name", m.Author.Username)
 
 	if err != nil {
 		beeline.AddField(ctx, "error", err)
