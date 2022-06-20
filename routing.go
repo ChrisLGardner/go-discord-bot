@@ -377,5 +377,7 @@ func getMemberRoles(ctx context.Context, s *discordgo.Session, m *discordgo.Mess
 		}
 	}
 
+	beeline.AddField(ctx, "role.roles", roles)
+
 	return roles, nil
 }
