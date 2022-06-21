@@ -11,10 +11,19 @@ import (
 	"github.com/chrislgardner/go-discord-bot/hnydiscordgo"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/trace"
+	"github.com/optimizely/go-sdk/pkg/entities"
 )
 
+type botService struct {
+	flags FeatureFlags
+}
+
+type FeatureFlags interface {
+	IsFeatureEnabled(featureKey string, userContext entities.UserContext) (bool, error)
+}
+
 //MessageRespond is the handler for which message respond function should be called
-func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
+func (b *botService) MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
@@ -112,7 +121,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		enabled := false
 
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "relationship-command") {
+		if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "relationship-command") {
 			span.AddField("flags.relationship", true)
 			enabled = true
 		}
@@ -141,7 +150,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		enabled := false
 
 		if strings.Contains(m.Content, " whitelist ") {
-			if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-commands") {
+			if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "mc-commands") {
 				span.AddField("flags.minecraft", true)
 				enabled = true
 			}
@@ -155,7 +164,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 				sendResponse(ctx, s, m.ChannelID, resp)
 			}
-		} else if getFeatureFlagState(ctx, m.Author.ID, roles, "mc-admin") {
+		} else if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "mc-admin") {
 			span.AddField("flags.minecraft", true)
 			span.AddField("flags.minecraft-admin", true)
 
@@ -187,7 +196,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "time")
 
 		enabled := false
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "timezone-command") {
+		if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "timezone-command") {
 			span.AddField("flags.timezone", true)
 			enabled = true
 		}
@@ -210,7 +219,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "link")
 
 		enabled := false
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "lunch-command") {
+		if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "lunch-command") {
 			span.AddField("flags.link", true)
 			enabled = true
 		}
@@ -231,7 +240,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		m.Content = strings.Replace(m.Content, "remindme ", "", 1)
 
 		enabled := false
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "reminder-command") {
+		if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "reminder-command") {
 			span.AddField("flags.reminder", true)
 			enabled = true
 		}
@@ -272,7 +281,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 		span.AddField("command", "rolldice")
 
 		enabled := false
-		if getFeatureFlagState(ctx, m.Author.ID, roles, "rolldice-command") {
+		if getFeatureFlagState(ctx, b.flags, m.Author.ID, roles, "rolldice-command") {
 			span.AddField("flags.rolldice", true)
 			enabled = true
 		}
@@ -295,7 +304,7 @@ func MessageRespond(s *discordgo.Session, m *discordgo.MessageCreate) {
 	span.Send()
 }
 
-func MessageReact(s *discordgo.Session, mra *discordgo.MessageReactionAdd) {
+func (b *botService) MessageReact(s *discordgo.Session, mra *discordgo.MessageReactionAdd) {
 	if mra.UserID == s.State.User.ID {
 		return
 	}
