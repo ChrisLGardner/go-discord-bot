@@ -54,7 +54,7 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 	ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
 	defer span.Send()
 
-	if _, ok := os.LookupEnv("OPTIMIZELY_KEY"); !ok {
+	if s, ok := os.LookupEnv("OPTIMIZELY_KEY"); !ok || s == "" {
 		beeline.AddField(ctx, "feature_flag.Key", false)
 		return false
 	}
@@ -64,7 +64,8 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 
 	optlyClient, err := optimizelyFactory.Client()
 	if err != nil {
-		panic(err)
+		beeline.AddField(ctx, "feature_flag.Error", err)
+		return false
 	}
 
 	defer optlyClient.Close()
