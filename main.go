@@ -33,6 +33,25 @@ func main() {
 		panic(err)
 	}
 
+	var bot botService
+	if key, ok := os.LookupEnv("OPTIMIZELY_KEY"); ok && key != "" {
+		optimizelyFactory := &client.OptimizelyFactory{
+			SDKKey: os.Getenv("OPTIMIZELY_KEY"),
+		}
+
+		optlyClient, err := optimizelyFactory.Client()
+		if err != nil {
+			panic(err)
+		}
+		defer optlyClient.Close()
+
+		bot = botService{
+			flags: optlyClient,
+		}
+	} else {
+		bot = botService{}
+	}
+
 	// Wait for the user to cancel the process
 	defer func() {
 		sc := make(chan os.Signal, 1)
@@ -44,31 +63,15 @@ func main() {
 
 	session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
 
-	session.AddHandler(MessageRespond)
-	session.AddHandler(MessageReact)
-	session.AddHandler(JoinThread)
+	session.AddHandler(bot.MessageRespond)
+	session.AddHandler(bot.MessageReact)
+	session.AddHandler(bot.JoinThread)
 }
 
-func getFeatureFlagState(ctx context.Context, id string, roles []string, flag string) bool {
+func getFeatureFlagState(ctx context.Context, optClient FeatureFlags, id string, roles []string, flag string) bool {
 
 	ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
 	defer span.Send()
-
-	if s, ok := os.LookupEnv("OPTIMIZELY_KEY"); !ok || s == "" {
-		beeline.AddField(ctx, "feature_flag.Key", false)
-		return false
-	}
-	optimizelyFactory := &client.OptimizelyFactory{
-		SDKKey: os.Getenv("OPTIMIZELY_KEY"),
-	}
-
-	optlyClient, err := optimizelyFactory.Client()
-	if err != nil {
-		beeline.AddField(ctx, "feature_flag.Error", err)
-		return false
-	}
-
-	defer optlyClient.Close()
 
 	beeline.AddField(ctx, "feature_flag_name", flag)
 	beeline.AddField(ctx, "feature_flag_role", roles)
@@ -91,7 +94,7 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 			Attributes: attributes,
 		}
 
-		enabled, err := optlyClient.IsFeatureEnabled(flag, user)
+		enabled, err := optClient.IsFeatureEnabled(flag, user)
 		if err != nil {
 			beeline.AddField(ctx, "feature_flag.Error", err)
 			return false
@@ -106,7 +109,7 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 	return enabled
 }
 
-func JoinThread(s *discordgo.Session, t *discordgo.ThreadCreate) {
+func (b *botService) JoinThread(s *discordgo.Session, t *discordgo.ThreadCreate) {
 
 	ctx, span := hnydiscordgo.StartTraceFromThreadJoin(t.Channel, s)
 	defer span.Send()
