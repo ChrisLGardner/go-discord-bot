@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/honeycombio/beeline-go/propagation"
 	"github.com/honeycombio/beeline-go/trace"
 )
 
@@ -24,7 +25,7 @@ func StartSpanOrTraceFromMessage(me *MessageEvent, s *discordgo.Session) (contex
 	if span == nil {
 		// there is no trace yet. We should make one! and use the root span.
 		var tr *trace.Trace
-		ctx, tr = trace.NewTrace(ctx, "")
+		ctx, tr = trace.NewTrace(ctx, &propagation.PropagationContext{})
 
 		span = tr.GetRootSpan()
 	} else {
@@ -46,7 +47,7 @@ func StartSpanOrTraceFromMessage(me *MessageEvent, s *discordgo.Session) (contex
 func StartTraceFromThreadJoin(c *discordgo.Channel, s *discordgo.Session) (context.Context, *trace.Span) {
 	ctx := context.Background()
 	var tr *trace.Trace
-	ctx, tr = trace.NewTrace(ctx, "")
+	ctx, tr = trace.NewTrace(ctx, &propagation.PropagationContext{})
 
 	span := tr.GetRootSpan()
 
