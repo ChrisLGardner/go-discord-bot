@@ -54,7 +54,7 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 	ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
 	defer span.Send()
 
-	if _, ok := os.LookupEnv("OPTIMIZELY_KEY"); !ok {
+	if s, ok := os.LookupEnv("OPTIMIZELY_KEY"); !ok || s == "" {
 		beeline.AddField(ctx, "feature_flag.Key", false)
 		return false
 	}
