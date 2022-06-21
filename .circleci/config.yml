@@ -155,7 +155,7 @@ jobs:
 
             - run: |
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID kube_config_update -- \
-                   kubectl apply -f deploy.yml
+                   kubectl apply -f artifacts/deploy.yml
 
             - run: |
                   DATE=$(date +%s)
