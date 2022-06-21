@@ -1,0 +1,57 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: go-discord-bot
+spec:
+  containers:
+    - name: go-discord-bot
+      image: halbarad.azurecr.io/go/discord-bot:{{ContainerVersion}}
+      volumeMounts:
+      - name: secrets-store
+        mountPath: "/mnt/secrets-store"
+        readOnly: true
+      env:
+      - name: DISCORD_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-discord-token
+      - name: HONEYCOMB_KEY
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-honeycomb-key
+      - name: HONEYCOMB_DATASET
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-honeycomb-dataset
+      - name: COSMOSDB_URI
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-cosmosdb-uri
+      - name: LUNCH_LINK
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-lunch-link
+      - name: MEMBER_TIMEZONES
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-timezones
+      - name: OPTIMIZELY_KEY
+        valueFrom:
+          secretKeyRef:
+            name: go-discord-bot
+            key: go-bot-optimizely-key
+  volumes:
+    - name: secrets-store
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: azure-kvname
+        nodePublishSecretRef:                       # Only required when using service principal mode
+          name: secrets-store-creds
