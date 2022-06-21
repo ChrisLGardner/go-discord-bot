@@ -91,7 +91,11 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 			Attributes: attributes,
 		}
 
-		enabled, _ := optlyClient.IsFeatureEnabled(flag, user)
+		enabled, err := optlyClient.IsFeatureEnabled(flag, user)
+		if err != nil {
+			beeline.AddField(ctx, "feature_flag.Error", err)
+			return false
+		}
 		beeline.AddField(ctx, "feature_flag_enabled", enabled)
 
 		if enabled {
