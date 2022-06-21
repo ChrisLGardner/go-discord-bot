@@ -4,6 +4,7 @@
 version: 2.1
 orbs:
   buildevents: honeycombio/buildevents@0.2.7
+  kubernetes: circleci/kubernetes@1.3.0
 
 executors:
   linuxgo:
@@ -139,7 +140,7 @@ jobs:
             - attach_workspace:
                 # Must be absolute path or relative path from working_directory
                 at: artifacts
-
+            - kubernetes/install-kubectl
             - run: |
                   buildevents cmd $CIRCLE_WORKFLOW_ID $BUILDEVENTS_SPAN_ID az_login -- \
                   az login --service-principal -u $AZ_SP_UUID -p $AZ_SP_PASS --tenant $AZ_SP_TENANT
