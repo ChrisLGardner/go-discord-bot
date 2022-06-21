@@ -54,6 +54,10 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 	ctx, span := beeline.StartSpan(ctx, "get_feature_flag_main")
 	defer span.Send()
 
+	if os.Getenv("OPTIMIZELY_KEY") == "" {
+		beeline.AddField(ctx, "feature_flag.Key", false)
+		return false
+	}
 	optimizelyFactory := &client.OptimizelyFactory{
 		SDKKey: os.Getenv("OPTIMIZELY_KEY"),
 	}
