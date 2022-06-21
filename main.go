@@ -64,7 +64,8 @@ func getFeatureFlagState(ctx context.Context, id string, roles []string, flag st
 
 	optlyClient, err := optimizelyFactory.Client()
 	if err != nil {
-		panic(err)
+		beeline.AddField(ctx, "feature_flag.Error", err)
+		return false
 	}
 
 	defer optlyClient.Close()
