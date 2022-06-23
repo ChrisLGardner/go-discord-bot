@@ -225,7 +225,7 @@ func (b *botService) MessageRespond(s *discordgo.Session, m *discordgo.MessageCr
 		}
 
 		if enabled {
-			resp := fmt.Sprintf("%s please don't share this publicly", os.Getenv("LUNCH_LINK"))
+			resp := fmt.Sprintf("<@&885649453049069618> %s please don't share this publicly", os.Getenv("LUNCH_LINK"))
 			sendResponse(ctx, s, m.ChannelID, resp)
 		} else {
 			span.AddField("flags.link", false)
