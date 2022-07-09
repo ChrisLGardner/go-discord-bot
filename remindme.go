@@ -23,6 +23,7 @@ type Reminder struct {
 	Channel         string    `json:"channel" bson:"channel"`
 	SourceMessage   string    `json:"sourceMessage" bson:"sourceMessage"`
 	SourceTimestamp time.Time `json:"sourceTimestamp" bson:"sourceTimestamp"`
+	BotSource       string    `json:"botsource" bson:"botsource"`
 }
 
 func sendReminders(session *discordgo.Session) {
@@ -61,6 +62,7 @@ func sendReminders(session *discordgo.Session) {
 			childSpan.AddField("sendReminderIndividual.channel", r.Channel)
 			childSpan.AddField("sendReminderIndividual.sourceMessage", r.SourceMessage)
 			childSpan.AddField("sendReminderIndividual.sourceTimestamp", r.SourceTimestamp)
+			childSpan.AddField("sendReminderIndividual.botSource", r.BotSource)
 
 			message := fmt.Sprintf("Hey <@%s>, remember %s", r.Creator, r.Message)
 
@@ -97,6 +99,9 @@ func findReminders(ctx context.Context, db *mongo.Client, interval int) ([]Remin
 		"due": bson.M{
 			"$gt": start,
 			"$lt": end,
+		},
+		"botsource": bson.M{
+			"$eq": "GoDiscordBot",
 		},
 	}
 
@@ -213,6 +218,7 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (Reminder, e
 		Channel:         message.ChannelID,
 		SourceMessage:   message.ID,
 		SourceTimestamp: sourceDate,
+		BotSource:       "GoDiscordBot",
 	}
 
 	span.AddField("parseReminder.due", r.Due)
@@ -222,6 +228,7 @@ func parseReminder(ctx context.Context, message *discordgo.Message) (Reminder, e
 	span.AddField("parseReminder.channel", r.Channel)
 	span.AddField("parseReminder.sourceMessage", r.SourceMessage)
 	span.AddField("parseReminder.sourceTimestamp", r.SourceTimestamp)
+	span.AddField("parseReminder.botSource", r.BotSource)
 
 	span.AddField("parseReminder.reminder", r)
 	return r, nil
@@ -286,6 +293,9 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 			"server": bson.M{
 				"$eq": message.GuildID,
 			},
+			"botsource": bson.M{
+				"$eq": "GoDiscordBot",
+			},
 		}
 	} else {
 		span.AddField("listReminders.type", "singleUser")
@@ -298,6 +308,9 @@ func listReminders(ctx context.Context, session *discordgo.Session, message *dis
 			},
 			"creator": bson.M{
 				"$eq": message.Author.ID,
+			},
+			"botsource": bson.M{
+				"$eq": "GoDiscordBot",
 			},
 		}
 	}
